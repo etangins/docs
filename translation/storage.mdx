@@ -1,5 +1,192 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Storing Translations and Feedback'
+description: 'Learn how to store translations and add quality feedback'
 ---
 
+## Concepts
+The system improves through:
+<CardGroup cols={2}>
+  <Card title="Translation Storage" icon="database">
+    - Builds translation history
+    - Provides training examples
+    - Enables quality analysis
+  </Card>
+  <Card title="Quality Feedback" icon="star">
+    - Measures translation accuracy
+    - Guides future model selection
+    - Helps optimize cost/quality balance
+  </Card>
+</CardGroup>
+
+## Storing Translations
+Store a translation request/response pair:
+
+```python
+def store_translation(router_id: str, version_id: str, source_text: str, translation: str):
+    """Store a translation for later analysis."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response'
+    
+    data = {
+        'request': {
+            'messages': [
+                {"role": "user", "content": source_text}
+            ]
+        },
+        'response': {
+            'choices': [{
+                'message': {
+                    'role': "assistant",
+                    'content': translation
+                }
+            }]
+        }
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response.json()['request_response_id']
+
+# Example usage
+request_response_id = store_translation(
+    router_id="your_router_id",
+    version_id="your_version_id",
+    source_text="안녕하세요",
+    translation="Hello"
+)
+print(f"Stored translation with ID: {request_response_id}")
+```
+
+## Adding Translation Quality Feedback
+Add feedback about translation quality:
+
+```python
+def add_translation_feedback(router_id: str, version_id: str, request_response_id: str, quality_score: float):
+    """Add quality feedback for a stored translation."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
+    
+    data = {
+        'request_response_id': request_response_id,
+        'score': quality_score  # 0-1 score for translation quality
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response.json()['judgement_id']
+
+# Example usage
+judgement_id = add_translation_feedback(
+    router_id="your_router_id",
+    version_id="your_version_id",
+    request_response_id=request_response_id,
+    quality_score=0.95  # High quality translation
+)
+print(f"Added quality feedback with ID: {judgement_id}")
+```
+
+## Direct Quality Feedback
+You can also submit feedback with the translation pair directly:
+
+```python
+def add_direct_feedback(router_id: str, version_id: str, source_text: str, translation: str, quality_score: float):
+    """Add feedback using the translation pair directly."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
+    
+    data = {
+        'request': {
+            'messages': [
+                {"role": "user", "content": source_text}
+            ]
+        },
+        'response': {
+            'choices': [{
+                'message': {
+                    'role': "assistant",
+                    'content': translation
+                }
+            }]
+        },
+        'score': quality_score
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response.json()['judgement_id']
+
+# Example usage
+feedback_id = add_direct_feedback(
+    router_id="your_router_id",
+    version_id="your_version_id",
+    source_text="감사합니다",
+    translation="Thank you",
+    quality_score=1.0  # Perfect translation
+)
+```
+
+## Translation Quality Metrics
+Consider these factors when providing feedback:
+<CardGroup cols={2}>
+  <Card title="Accuracy" icon="bullseye">
+    Does the translation preserve the original meaning?
+  </Card>
+  <Card title="Fluency" icon="comment">
+    Does the translation sound natural?
+  </Card>
+  <Card title="Tone" icon="wand-magic-sparkles">
+    Is the formality level maintained?
+  </Card>
+  <Card title="Completeness" icon="check-double">
+    Is all content translated correctly?
+  </Card>
+</CardGroup>
+
+## Common Issues
+<AccordionGroup>
+  <Accordion title="Invalid Request Format">
+    Translation requests must include:
+    ```python
+    'messages': [
+        {"role": "user", "content": "source_text"}
+    ]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Response Format">
+    Translation responses must include:
+    ```python
+    'choices': [{
+        'message': {
+            'role': "assistant",
+            'content': "translated_text"
+        }
+    }]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Quality Score">
+    Quality scores must be between 0 and 1:
+    - 0.0: Completely incorrect translation
+    - 1.0: Perfect translation
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+<Steps>
+  <Step title="Store All Translations">
+    Save translations to build a quality history
+  </Step>
+  <Step title="Collect Diverse Feedback">
+    Get feedback on different types of content
+  </Step>
+  <Step title="Monitor Trends">
+    Track quality scores over time
+  </Step>
+  <Step title="Update Regularly">
+    Use feedback to improve routing decisions
+  </Step>
+</Steps>
+
+## Next Steps
+After storing translations and feedback:
+1. Analyze translation quality trends
+2. Identify common error patterns
+3. Adjust routing constraints
+4. Train improved versions
+
+<Note>
+Save request_response_ids and quality scores for analysis of translation performance over time.
+</Note>

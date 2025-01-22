@@ -15,23 +15,6 @@ The Martian router system helps you optimize your LLM usage by intelligently rou
   </Card>
 </CardGroup>
 
-## How It Works
-<Frame>
-  ```mermaid
-  graph LR
-    A[Translation Request] --> B[Router]
-    B --> C{Select Model}
-    C --> D[GPT-4<br/>High Accuracy<br/>Higher Cost]
-    C --> E[GPT-3.5<br/>Good Accuracy<br/>Lower Cost]
-    C --> F[Other Models<br/>Basic Translation<br/>Minimal Cost]
-    D --> G[Translation]
-    E --> G
-    F --> G
-    G --> H[Judge]
-    H -->|Quality Feedback| B
-  ```
-</Frame>
-
 ## Key Features
 <AccordionGroup>
   <Accordion title="Intelligent Routing">

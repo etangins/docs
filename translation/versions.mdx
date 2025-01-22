@@ -1,5 +1,137 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Understanding Versions'
+description: 'Learn how versioning works for translation routers and judges'
 ---
 
+## Version Overview
+Both translation routers and judges use versioning to track improvements in translation quality and routing decisions over time.
+
+## Judge Versions
+
+### Listing Judge Versions
+```python
+def list_judge_versions(judge_id: str):
+    """List all versions of a translation quality judge."""
+    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions'
+    response = requests.get(url, headers=HEADERS)
+    versions = response.json()
+    
+    for version in versions['versions']:
+        print(f"\nVersion ID: {version['version_id']}")
+        print(f"Created at: {version['created_at']}")
+        print(f"IAA Score: {version['iaa']}")  # Inter-annotator agreement score
+    
+    return versions
+```
+
+### Understanding Judge Version Details
+Each translation judge version includes:
+<CardGroup cols={2}>
+  <Card title="Version ID" icon="fingerprint">
+    Unique identifier for the version
+  </Card>
+  <Card title="IAA Score" icon="chart-simple">
+    Agreement score for translation quality metrics
+  </Card>
+  <Card title="Created Timestamp" icon="clock">
+    When the version was created
+  </Card>
+  <Card title="Hash" icon="hashtag">
+    Version content identifier
+  </Card>
+</CardGroup>
+
+## Router Versions
+
+### Listing Router Versions
+```python
+def list_router_versions(router_id: str):
+    """List all versions of a translation router."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
+    response = requests.get(url, headers=HEADERS)
+    versions = response.json()
+    
+    for version in versions['versions']:
+        print(f"\nVersion ID: {version['version_id']}")
+        print(f"Created at: {version['created_at']}")
+        print(f"Judge Version: {version['judge_version_id']}")
+    
+    return versions
+```
+
+### Understanding Router Version Details
+Each translation router version includes:
+<CardGroup cols={2}>
+  <Card title="Version ID" icon="fingerprint">
+    Unique identifier for the version
+  </Card>
+  <Card title="Judge Version ID" icon="link">
+    Associated translation judge version
+  </Card>
+  <Card title="Cost-Quality Points" icon="chart-scatter">
+    Translation quality vs cost metrics
+  </Card>
+  <Card title="Hash" icon="hashtag">
+    Version content identifier
+  </Card>
+</CardGroup>
+
+## Best Practices
+### Version Management
+<Steps>
+  <Step title="Track Version Pairs">
+    Keep track of which translation judge and router versions work well together
+  </Step>
+  <Step title="Monitor Performance">
+    Track translation quality metrics across versions
+  </Step>
+  <Step title="Document Changes">
+    Record improvements in translation quality or cost optimization
+  </Step>
+</Steps>
+
+### Production Usage
+<AccordionGroup>
+  <Accordion title="Version Stability">
+    - Use specific version IDs in production
+    - Test new versions with sample translations
+    - Keep track of version compatibility
+  </Accordion>
+  <Accordion title="Performance Monitoring">
+    - Monitor translation quality metrics
+    - Track cost per translation
+    - Compare performance between versions
+  </Accordion>
+  <Accordion title="Version Updates">
+    - Plan updates when translation quality improves
+    - Test new versions in staging
+    - Maintain rollback procedures
+  </Accordion>
+</AccordionGroup>
+
+## Common Issues
+<CardGroup cols={2}>
+  <Card title="Version Not Found" icon="circle-exclamation">
+    ```python
+    404: Version ID doesn't exist
+    ```
+    Verify version ID exists and is active
+  </Card>
+  <Card title="Incompatible Versions" icon="triangle-exclamation">
+    ```python
+    422: Judge version not compatible
+    ```
+    Ensure judge and router versions match
+  </Card>
+</CardGroup>
+
+## Next Steps
+After understanding versions, you can:
+1. Use specific versions in production translation systems
+2. Monitor translation quality across versions
+3. Plan version updates based on quality improvements
+4. Manage version compatibility
+
+<Note>
+  Always test new versions with a variety of translation examples before deploying to production.
+</Note>

@@ -1,5 +1,219 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Verification Testing'
+description: 'Learn how to systematically test your translation router setup'
 ---
 
+## Overview
+Let's combine all the previous sections into a complete verification suite that:
+- Tests translation functionality systematically
+- Handles errors gracefully
+- Reports progress clearly
+- Maintains test dependencies
+
+<Frame>
+  ```mermaid
+  flowchart TD
+    A[Create Judge] --> B[Verify Judge]
+    B --> C[Create Router]
+    C --> D[Verify Router]
+    D --> E[Test Translation]
+    E --> F[Store Result]
+    F --> G[Add Feedback]
+    
+    style A fill:#b5d3e7
+    style B fill:#b5d3e7
+    style C fill:#d4e6c3
+    style D fill:#d4e6c3
+    style E fill:#ffd7b5
+    style F fill:#ffd7b5
+    style G fill:#e7c3c3
+  ```
+</Frame>
+
+## Test Organization
+Create a verification script that tests the complete translation workflow:
+
+```python verify_translation_setup.py
+from config import API_URL, ORG_ID, HEADERS, client
+import requests
+from typing import Optional
+import time
+
+class TranslationTester:
+    """Tests all components of the translation system."""
+    
+    def __init__(self):
+        self.judge_id: Optional[str] = None
+        self.router_id: Optional[str] = None
+        self.version_id: Optional[str] = None
+        
+        # Test translation pairs
+        self.test_cases = [
+            {
+                'source': '안녕하세요',
+                'expected': 'Hello',
+                'type': 'simple'
+            },
+            {
+                'source': '이 문서는 매우 중요합니다',
+                'expected': 'This document is very important',
+                'type': 'formal'
+            }
+        ]
+```
+
+## Running All Tests
+The `run_all_tests()` method executes tests in sequence:
+
+```python
+def run_all_tests(self):
+    """Run all translation system tests in sequence."""
+    try:
+        print("\nStarting translation system tests...")
+        
+        # Step 1: Create translation judge
+        self.judge_id = self.create_translation_judge()
+        print(f"✓ Created translation judge: {self.judge_id}")
+        
+        # Step 2: Verify judge
+        self.verify_judge()
+        print("✓ Verified judge details")
+        
+        # Step 3: Create translation router
+        self.router_id = self.create_translation_router()
+        print(f"✓ Created translation router: {self.router_id}")
+        
+        # Step 4: Verify router
+        self.verify_router()
+        print("✓ Verified router details")
+        
+        # Step 5: Test translations
+        self.test_translations()
+        print("✓ Tested translations")
+        
+        # Step 6: Store results
+        request_response_id = self.store_test_results()
+        print(f"✓ Stored results: {request_response_id}")
+        
+        # Step 7: Add quality feedback
+        self.add_quality_feedback(request_response_id)
+        print("✓ Added translation quality feedback")
+        
+        print("\nAll tests completed successfully! ✨")
+        
+    except Exception as e:
+        print(f"\n❌ Test failed: {str(e)}")
+        raise
+```
+
+## Individual Test Methods
+
+### Judge Tests
+```python
+def create_translation_judge(self):
+    """Create and verify a translation quality judge."""
+    url = f'{API_URL}/org/{ORG_ID}/judges'
+    
+    data = {
+        'name': f'korean-english-judge-{int(time.time())}',
+        'description': 'Evaluates Korean to English translation quality'
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    if response.status_code != 200:
+        raise Exception(f"Failed to create judge: {response.text}")
+    
+    return response.json()['judge_id']
+
+def verify_judge(self):
+    """Verify judge details and configuration."""
+    if not self.judge_id:
+        raise Exception("No judge ID available")
+        
+    url = f'{API_URL}/org/{ORG_ID}/judges/{self.judge_id}'
+    response = requests.get(url, headers=HEADERS)
+    if response.status_code != 200:
+        raise Exception(f"Failed to verify judge: {response.text}")
+```
+
+### Router Tests
+```python
+def create_translation_router(self):
+    """Create and verify a translation router."""
+    if not self.judge_id:
+        raise Exception("Judge ID required to create router")
+        
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    
+    data = {
+        'name': f'korean-english-router-{int(time.time())}',
+        'description': 'Routes Korean to English translation requests',
+        'judge_id': self.judge_id,
+        'baseline_model': 'gpt-4'
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    if response.status_code != 200:
+        raise Exception(f"Failed to create router: {response.text}")
+    
+    return response.json()['router_id']
+```
+
+### Translation Tests
+```python
+def test_translations(self):
+    """Test translations with different constraints."""
+    if not self.router_id:
+        raise Exception("Router ID required for translation tests")
+
+    for case in self.test_cases:
+        # Test with cost constraint
+        response = client.chat.completions.create(
+            model=self.router_id,
+            messages=[
+                {"role": "user", "content": case['source']}
+            ],
+            extra_body={"cost": 0.1}
+        )
+        print(f"\nTesting {case['type']} translation:")
+        print(f"Source: {case['source']}")
+        print(f"Expected: {case['expected']}")
+        print(f"Actual: {response.choices[0].message.content}")
+```
+
+## Common Test Issues
+<AccordionGroup>
+  <Accordion title="Dependencies">
+    Tests must run in order - judge creation before router creation
+  </Accordion>
+  <Accordion title="Translation Quality">
+    Verify translations meet quality standards before proceeding
+  </Accordion>
+  <Accordion title="API Limits">
+    Add delays between tests if you hit rate limits
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+<Steps>
+  <Step title="Regular Testing">
+    Run verification suite regularly to catch issues
+  </Step>
+  <Step title="Test Data">
+    Use diverse translation examples in tests
+  </Step>
+  <Step title="Error Monitoring">
+    Track and analyze test failures
+  </Step>
+</Steps>
+
+## Next Steps
+After implementing verification testing:
+1. Set up automated test runs
+2. Expand test cases
+3. Monitor test results
+4. Add performance metrics
+
+<Note>
+Remember to clean up test resources (judges, routers) if running tests frequently.
+</Note>

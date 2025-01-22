@@ -1,5 +1,181 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Using the Translation Router'
+description: 'Learn how to make translation requests and test router functionality'
 ---
 
+## Concepts
+When using a translation router, you can specify either:
+- A cost constraint to get the best translation quality within a budget
+- A quality constraint to get the lowest cost meeting a quality threshold
+
+Constraints can be specified as:
+- Numeric values (dollars or quality score)
+- Model names (match a specific model's cost or quality)
+
+## Testing Router Requests
+
+Let's try translating text with different constraints using the OpenAI client:
+
+```python
+from config import client
+
+def translate_text(router_id: str, text: str, constraint: dict):
+    """
+    Translate text using a router with specific constraints.
+    
+    Args:
+        router_id: Your router ID
+        text: Text to translate
+        constraint: Dictionary with either 'cost' or 'quality' key
+    """
+    try:
+        response = client.chat.completions.create(
+            model=router_id,
+            messages=[
+                {"role": "system", "content": "You are a skilled Korean-English translator."},
+                {"role": "user", "content": text}
+            ],
+            extra_body=constraint
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Translation error: {str(e)}")
+        return None
+
+# Test with cost constraint (budget-friendly translation)
+result = translate_text(
+    router_id="your_router_id",
+    text="안녕하세요. 오늘 날씨가 좋네요.",
+    constraint={"cost": 0.1}  # Maximum cost per translation
+)
+print("\nCost-optimized translation:", result)
+
+# Test with quality constraint (high-accuracy translation)
+result = translate_text(
+    router_id="your_router_id",
+    text="이 계약서를 검토해 주시기 바랍니다.",
+    constraint={"quality": 0.9}  # Minimum quality score
+)
+print("\nQuality-optimized translation:", result)
+```
+
+### Expected Response Format
+```json
+{
+    "choices": [{
+        "message": {
+            "role": "assistant",
+            "content": "Hello. The weather is nice today."
+        }
+    }]
+}
+```
+
+## Constraint Types
+<CardGroup cols={2}>
+  <Card title="Cost Constraints" icon="money-bill">
+    ```python
+    # Numeric value (dollars)
+    {"cost": 0.1}
+    
+    # Model name (match model's cost)
+    {"cost": "gpt-3.5-turbo"}
+    ```
+  </Card>
+  <Card title="Quality Constraints" icon="star">
+    ```python
+    # Numeric value (0-1 score)
+    {"quality": 0.8}
+    
+    # Model name (match model's quality)
+    {"quality": "gpt-4"}
+    ```
+  </Card>
+</CardGroup>
+
+## Multi-turn Translation
+The router maintains context across multiple messages:
+
+```python
+# Multi-turn conversation translation
+conversation_result = translate_text(
+    router_id="your_router_id",
+    messages=[
+        {"role": "system", "content": "You are a Korean-English translator."},
+        {"role": "user", "content": "안녕하세요"},
+        {"role": "assistant", "content": "Hello!"},
+        {"role": "user", "content": "오늘 기분이 어떠세요?"}
+    ],
+    constraint={"quality": 0.8}
+)
+print("\nMulti-turn translation:", conversation_result)
+```
+
+## Translation Response Verification
+<Steps>
+  <Step title="Check Status">
+    Verify response status code is 200
+  </Step>
+  <Step title="Validate Translation">
+    Ensure response contains translated text
+  </Step>
+  <Step title="Check Context">
+    Verify conversation context is maintained
+  </Step>
+  <Step title="Handle Errors">
+    Check for translation-specific errors
+  </Step>
+</Steps>
+
+## Common Issues
+<AccordionGroup>
+  <Accordion title="Invalid Constraint">
+    Ensure you specify either cost OR quality, not both:
+    ```python
+    # This will fail
+    constraint = {
+        'cost': 0.1,
+        'quality': 0.8  # Don't specify both
+    }
+    ```
+  </Accordion>
+  <Accordion title="Invalid Values">
+    - Cost must be positive
+    - Quality must be between 0 and 1
+    - Model names must be valid
+  </Accordion>
+  <Accordion title="Context Loss">
+    For multi-turn translations:
+    - Include all previous conversation turns
+    - Maintain consistent language pairs
+    - Keep system message consistent
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+### Translation Request Format
+<CardGroup cols={2}>
+  <Card title="System Message" icon="gear">
+    Include language pair and any special instructions
+  </Card>
+  <Card title="User Message" icon="message">
+    Keep source text clear and well-formatted
+  </Card>
+  <Card title="Constraints" icon="sliders">
+    Match constraints to content importance
+  </Card>
+  <Card title="Context" icon="list">
+    Include relevant previous messages
+  </Card>
+</CardGroup>
+
+## Next Steps
+After testing translation functionality:
+1. Store translations for analysis
+2. Add quality judgements to improve routing
+3. Monitor translation performance
+4. Adjust constraints based on needs
+
+<Note>
+  Remember to test with various text types (casual, formal, technical) to ensure consistent translation quality.
+</Note>

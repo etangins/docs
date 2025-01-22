@@ -1,5 +1,176 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Creating Judges'
+description: 'Learn how to create and manage judges for quality evaluation'
 ---
 
+## Understanding Judges
+
+A judge is the cornerstone of the Martian system. It defines what "good" looks like for your use case and provides consistent quality metrics that guide routing decisions.
+
+<CardGroup cols={2}>
+  <Card title="Quality Definition" icon="star">
+    Judges evaluate response quality based on specific criteria you define
+  </Card>
+  <Card title="Feedback Loop" icon="rotate">
+    Provides feedback to help routers make better decisions over time
+  </Card>
+</CardGroup>
+
+## Creating Your First Judge
+
+<Steps>
+  <Step title="Initialize Judge Creation">
+    ```python
+    import requests
+    import os
+    from dotenv import load_dotenv
+
+    # Load environment variables
+    load_dotenv()
+
+    # API configuration
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges'
+    headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}',
+        'Content-Type': 'application/json'
+    }
+    ```
+  </Step>
+  <Step title="Define Judge Parameters">
+    ```python
+    data = {
+        'name': 'Quality Assessment Judge',
+        'description': 'Evaluates response quality based on accuracy and completeness'
+    }
+    ```
+  </Step>
+  <Step title="Create Judge">
+    ```python
+    response = requests.post(url, headers=headers, json=data)
+    judge_id = response.json()['judge_id']
+    print(f"Created judge with ID: {judge_id}")
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Save your `judge_id` for later use when creating routers and storing judgements.
+</Note>
+
+## Verifying Judge Creation
+
+After creating a judge, verify its details:
+
+```python
+def get_judge_details(judge_id: str):
+    """Retrieve details about a specific judge."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges/{judge_id}'
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+details = get_judge_details(judge_id)
+print(f"Name: {details['name']}")
+print(f"Description: {details['description']}")
+print(f"Created at: {details['created_at']}")
+print(f"Latest version: {details['latest']}")
+```
+
+## Managing Multiple Judges
+
+List all your judges:
+
+```python
+def list_judges():
+    """List all judges in your organization."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges'
+    response = requests.get(url, headers=headers)
+    return response.json()['judges']
+
+judges = list_judges()
+for judge in judges:
+    print(f"\nID: {judge['judge_id']}")
+    print(f"Name: {judge['name']}")
+    print(f"Description: {judge['description']}")
+```
+
+## Understanding Judge Versions
+
+Each judge maintains versions to track improvements over time:
+
+```python
+def get_judge_versions(judge_id: str):
+    """List all versions of a specific judge."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges/{judge_id}/versions'
+    response = requests.get(url, headers=headers)
+    return response.json()['versions']
+
+versions = get_judge_versions(judge_id)
+for version in versions:
+    print(f"\nVersion ID: {version['version_id']}")
+    print(f"Created at: {version['created_at']}")
+    print(f"IAA Score: {version['iaa']}")
+```
+
+## Best Practices
+
+### Naming Conventions
+
+<AccordionGroup>
+  <Accordion title="Descriptive Names">
+    Use names that clearly indicate the judge's purpose:
+    - `translation-accuracy-judge`
+    - `code-quality-judge`
+    - `brand-voice-judge`
+  </Accordion>
+  <Accordion title="Detailed Descriptions">
+    Include in your description:
+    - Quality metrics being evaluated
+    - Expected use cases
+    - Any specific criteria
+  </Accordion>
+</AccordionGroup>
+
+### Quality Metrics
+
+Consider these factors when defining quality:
+
+<CardGroup cols={2}>
+  <Card title="Accuracy" icon="bullseye">
+    How correct and precise are the responses?
+  </Card>
+  <Card title="Relevance" icon="arrows-to-dot">
+    How well do responses address the query?
+  </Card>
+  <Card title="Completeness" icon="square-check">
+    Are all aspects of the query addressed?
+  </Card>
+  <Card title="Consistency" icon="equals">
+    Are similar queries handled similarly?
+  </Card>
+</CardGroup>
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Duplicate Names">
+    Each judge must have a unique name within your organization. Trying to create a judge with a duplicate name will result in a 409 Conflict error.
+  </Accordion>
+  <Accordion title="Invalid Characters">
+    Judge names should only contain alphanumeric characters, hyphens, and underscores.
+  </Accordion>
+  <Accordion title="Missing Description">
+    While descriptions can be brief, they must be provided. A clear description helps identify the judge's purpose.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Now that you've created a judge, you can:
+1. Create a router that uses your judge
+2. Start evaluating responses
+3. Store and analyze judgements
+
+<Note>
+  For optimal routing performance, ensure your judge consistently evaluates similar responses with similar scores.
+</Note>

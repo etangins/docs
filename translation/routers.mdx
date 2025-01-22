@@ -1,5 +1,196 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Creating Translation Routers'
+description: 'Learn how to create and configure routers for optimal translation model selection'
 ---
 
+## Understanding Translation Routers
+Routers are intelligent decision-makers that select the optimal model for each translation request. They use judge feedback to balance translation quality with cost.
+
+<CardGroup cols={2}>
+  <Card title="Cost Optimization" icon="money-bill">
+    Route translations to meet quality requirements at minimum cost
+  </Card>
+  <Card title="Quality Control" icon="star">
+    Ensure translations meet quality standards defined by judges
+  </Card>
+</CardGroup>
+
+## Creating Your First Router
+<Note>
+  Before creating a router, you need a judge ID from the previous step to evaluate translation quality.
+</Note>
+
+<Steps>
+  <Step title="Initialize Router Creation">
+    ```python
+    from config import API_URL, ORG_ID, HEADERS
+    import requests
+
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    ```
+  </Step>
+  <Step title="Define Router Parameters">
+    ```python
+    data = {
+        'name': 'korean-english-router',
+        'description': 'Routes Korean-English translation requests based on quality needs',
+        'judge_id': 'your_judge_id_here',
+        'baseline_model': 'gpt-4'  # High-quality baseline for translations
+    }
+    ```
+  </Step>
+  <Step title="Create Router">
+    ```python
+    response = requests.post(url, headers=HEADERS, json=data)
+    router_id = response.json()['router_id']
+    print(f"Created translation router with ID: {router_id}")
+    ```
+  </Step>
+</Steps>
+
+## Verifying Router Creation
+After creating a router, verify its details:
+```python
+def get_router_details(router_id: str):
+    """Retrieve details about a specific translation router."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}'
+    response = requests.get(url, headers=HEADERS)
+    return response.json()
+
+details = get_router_details(router_id)
+print(f"Name: {details['name']}")
+print(f"Description: {details['description']}")
+print(f"Judge ID: {details['judge_id']}")
+print(f"Baseline Model: {details['baseline_model']}")
+print(f"Created at: {details['created_at']}")
+```
+
+## Understanding Router Constraints
+Routers accept two types of constraints for translation requests:
+<CardGroup cols={2}>
+  <Card title="Cost Constraints" icon="dollar-sign">
+    ```python
+    # Numeric value (dollars)
+    constraint = {'cost': 0.1}
+    
+    # Model name
+    constraint = {'cost': 'gpt-3.5-turbo'}
+    ```
+  </Card>
+  <Card title="Quality Constraints" icon="chart-line">
+    ```python
+    # Numeric value (0-1)
+    constraint = {'quality': 0.8}
+    
+    # Model name
+    constraint = {'quality': 'gpt-4'}
+    ```
+  </Card>
+</CardGroup>
+
+## Managing Multiple Routers
+List all your translation routers:
+```python
+def list_routers():
+    """List all translation routers in your organization."""
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    response = requests.get(url, headers=HEADERS)
+    return response.json()['routers']
+
+routers = list_routers()
+for router in routers:
+    print(f"\nID: {router['router_id']}")
+    print(f"Name: {router['name']}")
+    print(f"Description: {router['description']}")
+```
+
+## Understanding Baseline Models
+<AccordionGroup>
+  <Accordion title="What is a Baseline Model?">
+    The baseline model serves as:
+    - A quality benchmark for translations
+    - A fallback option when unsure
+    - A starting point for optimization
+  </Accordion>
+  <Accordion title="Choosing a Baseline">
+    Common choices for translation:
+    - `gpt-4`: High accuracy, better cultural understanding
+    - `gpt-3.5-turbo`: Good balance of quality and speed
+    - `gpt-4-turbo`: Latest model with improved capabilities
+  </Accordion>
+</AccordionGroup>
+
+## Translation Cost-Quality Trade-offs
+Routers optimize the trade-off between cost and translation quality:
+<Frame>
+  ```mermaid
+  scatter
+    title Cost vs Quality Trade-off for Translation
+    x-axis Quality [0-1]
+    y-axis Cost ($)
+    line-0: 0.7,0.02 "Basic Translation"
+    line-1: 0.85,0.06 "Business Quality"
+    line-2: 0.95,0.12 "Professional Quality"
+  ```
+</Frame>
+
+## Best Practices
+### Router Configuration
+<Steps>
+  <Step title="Choose Appropriate Baseline">
+    Select a baseline model that matches your minimum translation quality requirements
+  </Step>
+  <Step title="Define Clear Objectives">
+    Decide whether to optimize for:
+    - Minimum cost with acceptable accuracy
+    - Maximum accuracy for important documents
+  </Step>
+  <Step title="Monitor Performance">
+    Regularly check:
+    - Translation accuracy
+    - Response times
+    - Cost efficiency
+  </Step>
+</Steps>
+
+### Constraint Selection
+<CardGroup cols={2}>
+  <Card title="Cost-Based Routing" icon="money-bill-trend-up">
+    Use when:
+    - Translating casual content
+    - High volume of translations
+    - Speed is important
+  </Card>
+  <Card title="Quality-Based Routing" icon="ranking-star">
+    Use when:
+    - Translating legal documents
+    - Professional content
+    - Perfect accuracy needed
+  </Card>
+</CardGroup>
+
+## Common Issues
+<AccordionGroup>
+  <Accordion title="Invalid Judge ID">
+    Ensure the judge_id exists and is configured for the correct language pair.
+  </Accordion>
+  <Accordion title="Invalid Baseline Model">
+    Use only supported model names for the baseline_model parameter.
+  </Accordion>
+  <Accordion title="Duplicate Names">
+    Router names must be unique. Consider names like:
+    - `ko-en-business-router`
+    - `ko-en-technical-router`
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+Now that you've created a translation router, you can:
+1. Test routing with different constraints
+2. Monitor translation quality
+3. Store and analyze translations
+4. Add quality judgements for optimization
+
+<Note>
+  Remember to record your router_id for use in translation requests.
+</Note>

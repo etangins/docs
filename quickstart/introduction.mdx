@@ -16,24 +16,6 @@ The Martian router system helps you optimize your LLM usage by intelligently rou
   </Card>
 </CardGroup>
 
-## How It Works
-
-<Frame>
-  ```mermaid
-  graph LR
-    A[User Request] --> B[Router]
-    B --> C{Select Model}
-    C --> D[High Quality<br/>High Cost]
-    C --> E[Medium Quality<br/>Medium Cost]
-    C --> F[Low Quality<br/>Low Cost]
-    D --> G[Response]
-    E --> G
-    F --> G
-    G --> H[Judge]
-    H -->|Quality Feedback| B
-  ```
-</Frame>
-
 ## Key Features
 
 <AccordionGroup>

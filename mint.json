@@ -51,7 +51,7 @@
       "group": "Quickstart GapL",
       "pages": [
         "translation/introduction",
-        "application",
+        "translation/application",
         "translation/setup",
         "translation/judges",
         "translation/routers",

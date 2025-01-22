@@ -35,20 +35,7 @@
   ],
   "navigation": [
     {
-      "group": "Quickstart",
-      "pages": [
-        "quickstart/introduction",
-        "quickstart/setup",
-        "quickstart/judges",
-        "quickstart/routers",
-        "quickstart/versions",
-        "quickstart/usage",
-        "quickstart/storage",
-        "quickstart/verification"
-      ]
-    },
-    {
-      "group": "Quickstart GapL",
+      "group": "Translation Quickstart",
       "pages": [
         "translation/introduction",
         "translation/application",
@@ -59,6 +46,19 @@
         "translation/usage",
         "translation/storage",
         "translation/verification"
+      ]
+    },
+    {
+      "group": "General Quickstart",
+      "pages": [
+        "quickstart/introduction",
+        "quickstart/setup",
+        "quickstart/judges",
+        "quickstart/routers",
+        "quickstart/versions",
+        "quickstart/usage",
+        "quickstart/storage",
+        "quickstart/verification"
       ]
     }
   ],

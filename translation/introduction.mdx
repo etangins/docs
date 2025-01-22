@@ -1,0 +1,61 @@
+---
+title: 'Introduction'
+description: 'Learn about the Martian router system'
+---
+
+## Overview
+The Martian router system helps you optimize your LLM usage by intelligently routing requests to the most appropriate model based on your requirements. In this guide, we'll build a translation service that demonstrates how the system works. The system consists of two main components:
+
+<CardGroup cols={2}>
+  <Card title="Routers" icon="route">
+    Direct each translation request to the optimal model based on cost or quality requirements. For example, routing casual conversations to faster, cheaper models while using higher-quality models for legal document translation.
+  </Card>
+  <Card title="Judges" icon="gavel">
+    Define and measure translation quality metrics that routers optimize for, such as accuracy, fluency, and preservation of tone.
+  </Card>
+</CardGroup>
+
+## How It Works
+<Frame>
+  ```mermaid
+  graph LR
+    A[Translation Request] --> B[Router]
+    B --> C{Select Model}
+    C --> D[GPT-4<br/>High Accuracy<br/>Higher Cost]
+    C --> E[GPT-3.5<br/>Good Accuracy<br/>Lower Cost]
+    C --> F[Other Models<br/>Basic Translation<br/>Minimal Cost]
+    D --> G[Translation]
+    E --> G
+    F --> G
+    G --> H[Judge]
+    H -->|Quality Feedback| B
+  ```
+</Frame>
+
+## Key Features
+<AccordionGroup>
+  <Accordion title="Intelligent Routing">
+    Automatically select the best translation model based on your specific needs. For casual conversation, a faster, cheaper model might be sufficient, while legal document translation might require higher accuracy.
+  </Accordion>
+  <Accordion title="Cost Optimization">
+    Set cost constraints to get the best possible translation quality within your budget. For example, maintain a specific cost-per-word while maximizing accuracy.
+  </Accordion>
+  <Accordion title="Quality Control">
+    Define translation quality metrics and ensure responses meet your standards for accuracy, fluency, and tone preservation.
+  </Accordion>
+  <Accordion title="Continuous Improvement">
+    Learn from user feedback about translation quality to make better routing decisions over time.
+  </Accordion>
+</AccordionGroup>
+
+## Get Started
+Follow our step-by-step guide to:
+1. Set up your environment
+2. Create a translation quality judge
+3. Create a router for handling translations
+4. Start routing translation requests
+5. Monitor and optimize translation performance
+
+<Note>
+  Make sure you have a Martian API key before starting. If you don't have one, sign up at [withmartian.com](https://withmartian.com).
+</Note>

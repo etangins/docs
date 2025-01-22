@@ -1,0 +1,180 @@
+---
+title: 'Initial Setup'
+description: 'Set up your environment for using the Martian translation router'
+---
+
+## Prerequisites
+Before you begin, ensure you have:
+<Check>
+  Python 3.7 or higher installed
+</Check>
+<Check>
+  pip (Python package installer)
+</Check>
+<Check>
+  A Martian API key
+</Check>
+
+## Installation
+<Steps>
+  <Step title="Create Project Directory">
+    ```bash
+    mkdir martian-translator
+    cd martian-translator
+    ```
+  </Step>
+
+  <Step title="Create Virtual Environment">
+    <CodeGroup>
+      <CodeBlock title="Unix">
+        ```bash
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
+      </CodeBlock>
+      <CodeBlock title="Windows">
+        ```bash
+        python -m venv venv
+        venv\Scripts\activate
+        ```
+      </CodeBlock>
+    </CodeGroup>
+  </Step>
+
+  <Step title="Install Dependencies">
+    Create a `requirements.txt` file:
+    ```txt requirements.txt
+    python-dotenv==1.0.1
+    requests==2.28.2
+    openai==1.59.3
+    ```
+    Install the dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+  </Step>
+
+  <Step title="Configure Environment">
+    Create a `.env` file:
+    ```env .env
+    MARTIAN_API_URL=https://withmartian.com/api
+    MARTIAN_API_KEY=your_api_key_here
+    MARTIAN_ORG_ID=your_org_id_here
+    ```
+
+    Create `config.py` to load environment variables:
+    ```python config.py
+    from dotenv import load_dotenv
+    import os
+
+    # Load environment variables once
+    load_dotenv()
+
+    # Common API configuration
+    API_URL = os.getenv("MARTIAN_API_URL")
+    ORG_ID = os.getenv("MARTIAN_ORG_ID")
+    HEADERS = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}',
+        'Content-Type': 'application/json'
+    }
+
+    # Configure OpenAI client for translations
+    from openai import OpenAI
+    client = OpenAI(
+        base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1",
+        api_key=os.getenv('MARTIAN_API_KEY')
+    )
+    ```
+  </Step>
+</Steps>
+
+## Get Your API Key
+<Steps>
+  <Step title="Sign In">
+    Go to [withmartian.com/workbench](https://withmartian.com/workbench)
+  </Step>
+  <Step title="Access Settings">
+    Click on the user profile icon in the top right corner
+  </Step>
+  <Step title="Generate Key">
+    Navigate to Account > Organization > API Keys > Add API Key
+  </Step>
+  <Step title="Save Credentials">
+    Copy your API key and organization ID to your `.env` file
+  </Step>
+</Steps>
+
+<Warning>
+  Never commit your `.env` file to version control. Add it to your `.gitignore` file to prevent accidental exposure of your credentials.
+</Warning>
+
+## Verify Setup
+Create a `test_setup.py` file to verify your configuration:
+```python test_setup.py
+from config import client, API_URL, ORG_ID, HEADERS
+import requests
+
+def test_env_setup():
+    """Test basic API connectivity"""
+    try:
+        response = requests.get(
+            f'{API_URL}/org/{ORG_ID}/judges',
+            headers=HEADERS
+        )
+        if response.status_code == 200:
+            print("✓ Successfully connected to Martian API")
+            return True
+        elif response.status_code == 402:
+            print("✗ Error: Payment required. Please add a credit card")
+            return False
+        else:
+            print(f"✗ Error connecting to API: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"✗ Error: {str(e)}")
+        return False
+
+def test_translation_setup():
+    """Test OpenAI client configuration with a simple translation"""
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # We'll use a router ID later
+            messages=[
+                {"role": "user", "content": "Translate 'hello' to Korean"}
+            ]
+        )
+        if response.choices[0].message.content:
+            print("✓ Successfully tested translation endpoint")
+            return True
+        return False
+    except Exception as e:
+        print(f"✗ Error testing translation: {str(e)}")
+        return False
+
+if __name__ == "__main__":
+    print("Testing Martian setup...")
+    api_ok = test_env_setup()
+    translation_ok = test_translation_setup()
+    
+    if api_ok and translation_ok:
+        print("\nSetup completed successfully! ✨")
+    else:
+        print("\nSetup incomplete. Please check the errors above.")
+```
+
+## Troubleshooting
+<AccordionGroup>
+  <Accordion title="402 Error">
+    You need to add a credit card or contact the Martian team to use your API key.
+  </Accordion>
+  <Accordion title="Authentication Error">
+    Verify your API key is correctly copied and there are no extra spaces.
+  </Accordion>
+  <Accordion title="Import Errors">
+    Ensure you've activated your virtual environment and installed all requirements.
+  </Accordion>
+  <Accordion title="OpenAI Client Error">
+    Check that your MARTIAN_API_URL includes '/api' and your API key is valid.
+  </Accordion>
+</AccordionGroup>

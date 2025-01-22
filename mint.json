@@ -46,6 +46,19 @@
         "quickstart/storage",
         "quickstart/verification"
       ]
+    },
+    {
+      "group": "Quickstart GapL",
+      "pages": [
+        "translation/introduction",
+        "translation/setup",
+        "translation/judges",
+        "translation/routers",
+        "translation/versions",
+        "translation/usage",
+        "translation/storage",
+        "translation/verification"
+      ]
     }
   ],
   "footerSocials": {

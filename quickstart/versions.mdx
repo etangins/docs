@@ -1,5 +1,292 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Understanding Versions'
+description: 'Learn how versioning works for routers and judges'
 ---
 
+## Version Overview
+
+Both routers and judges use versioning to track changes and improvements over time. Understanding version management is crucial for maintaining stable performance.
+
+<Frame>
+  ```mermaid
+  graph TD
+    J1[Judge v1] --> R1[Router v1]
+    J1 --> R2[Router v2]
+    J2[Judge v2] --> R3[Router v3]
+    J2 --> R4[Router v4]
+    
+    style J1 fill:#b5d3e7
+    style J2 fill:#b5d3e7
+    style R1 fill:#d4e6c3
+    style R2 fill:#d4e6c3
+    style R3 fill:#d4e6c3
+    style R4 fill:#d4e6c3
+  ```
+</Frame>
+
+## Judge Versions
+
+### Listing Judge Versions
+
+<CodeGroup>
+```python List Versions
+import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+def list_judge_versions(judge_id: str):
+    """List all versions of a specific judge."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges/{judge_id}/versions'
+    
+    headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}'
+    }
+    
+    response = requests.get(url, headers=headers)
+    versions = response.json()
+    
+    for version in versions['versions']:
+        print(f"\nVersion ID: {version['version_id']}")
+        print(f"Created at: {version['created_at']}")
+        print(f"Slug: {version['slug']}")
+        print(f"IAA Score: {version['iaa']}")
+    
+    return versions
+```
+
+```python Get Version Details
+def get_judge_version_details(judge_id: str, version_id: str):
+    """Get detailed information about a specific judge version."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/judges/{judge_id}/versions/{version_id}'
+    
+    headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}'
+    }
+    
+    response = requests.get(url, headers=headers)
+    version = response.json()
+    
+    print(f"\nVersion Details:")
+    print(f"Version ID: {version['version_id']}")
+    print(f"Created at: {version['created_at']}")
+    print(f"Slug: {version['slug']}")
+    print(f"Hash: {version['hash']}")
+    print(f"IAA Score: {version['iaa']}")
+    
+    return version
+```
+</CodeGroup>
+
+### Understanding Judge Version Details
+
+Each judge version includes:
+
+<CardGroup cols={2}>
+  <Card title="Version ID" icon="fingerprint">
+    Unique identifier for the version
+  </Card>
+  <Card title="Created Timestamp" icon="clock">
+    When the version was created
+  </Card>
+  <Card title="Slug" icon="tag">
+    Human-readable identifier
+  </Card>
+  <Card title="IAA Score" icon="chart-simple">
+    Inter-Annotator Agreement score
+  </Card>
+</CardGroup>
+
+## Router Versions
+
+### Listing Router Versions
+
+<CodeGroup>
+```python List Versions
+def list_router_versions(router_id: str):
+    """List all versions of a specific router."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions'
+    
+    headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}'
+    }
+    
+    response = requests.get(url, headers=headers)
+    versions = response.json()
+    
+    for version in versions['versions']:
+        print(f"\nVersion ID: {version['version_id']}")
+        print(f"Created at: {version['created_at']}")
+        print(f"Slug: {version['slug']}")
+        print(f"Judge Version ID: {version['judge_version_id']}")
+    
+    return versions
+```
+
+```python Get Version Details
+def get_router_version_details(router_id: str, version_id: str):
+    """Get detailed information about a specific router version."""
+    url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}'
+    
+    headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}'
+    }
+    
+    response = requests.get(url, headers=headers)
+    version = response.json()
+    
+    print(f"\nVersion Details:")
+    print(f"Version ID: {version['version_id']}")
+    print(f"Created at: {version['created_at']}")
+    print(f"Slug: {version['slug']}")
+    print(f"Hash: {version['hash']}")
+    print(f"Judge Version ID: {version['judge_version_id']}")
+    
+    print("\nCost-Quality Points:")
+    for point in version['cost_quality_points']:
+        print(f"Cost: ${point['cost']:.4f}, Quality: {point['quality']:.4f}")
+    
+    return version
+```
+</CodeGroup>
+
+### Understanding Router Version Details
+
+Each router version includes:
+
+<CardGroup cols={2}>
+  <Card title="Version ID" icon="fingerprint">
+    Unique identifier for the version
+  </Card>
+  <Card title="Created Timestamp" icon="clock">
+    When the version was created
+  </Card>
+  <Card title="Judge Version ID" icon="link">
+    Associated judge version
+  </Card>
+  <Card title="Cost-Quality Points" icon="chart-scatter">
+    Performance metrics
+  </Card>
+</CardGroup>
+
+## Version Management
+
+### Creating a Version Manager
+
+Here's a utility class to help manage versions:
+
+```python
+class VersionManager:
+    def __init__(self):
+        load_dotenv()
+        self.api_url = os.getenv("MARTIAN_API_URL")
+        self.org_id = os.getenv("MARTIAN_ORG_ID")
+        self.headers = {
+            'accept': 'application/json',
+            'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}'
+        }
+
+    def get_latest_versions(self, judge_id: str, router_id: str):
+        """Get the latest versions for a judge-router pair."""
+        judge_versions = self.list_judge_versions(judge_id)
+        router_versions = self.list_router_versions(router_id)
+        
+        latest_judge = judge_versions['versions'][0] if judge_versions['versions'] else None
+        latest_router = router_versions['versions'][0] if router_versions['versions'] else None
+        
+        return {
+            'judge': latest_judge,
+            'router': latest_router
+        }
+
+    def find_compatible_versions(self, judge_id: str, router_id: str):
+        """Find all compatible judge and router version pairs."""
+        judge_versions = self.list_judge_versions(judge_id)
+        router_versions = self.list_router_versions(router_id)
+        
+        compatible_pairs = []
+        for router_version in router_versions['versions']:
+            judge_version_id = router_version['judge_version_id']
+            matching_judge = next(
+                (j for j in judge_versions['versions'] if j['version_id'] == judge_version_id),
+                None
+            )
+            if matching_judge:
+                compatible_pairs.append({
+                    'judge_version': matching_judge,
+                    'router_version': router_version
+                })
+        
+        return compatible_pairs
+```
+
+## Best Practices
+
+### Version Management
+
+<Steps>
+  <Step title="Track Version Pairs">
+    Maintain records of which judge and router versions work well together
+  </Step>
+  <Step title="Monitor Performance">
+    Track performance metrics across versions to identify improvements or regressions
+  </Step>
+  <Step title="Document Changes">
+    Keep clear records of changes and improvements in each version
+  </Step>
+</Steps>
+
+### Production Usage
+
+<AccordionGroup>
+  <Accordion title="Version Stability">
+    - Use specific version IDs in production
+    - Test new versions before deployment
+    - Keep track of version compatibility
+  </Accordion>
+  <Accordion title="Performance Monitoring">
+    - Monitor cost-quality metrics across versions
+    - Track IAA scores for judge versions
+    - Compare performance between versions
+  </Accordion>
+  <Accordion title="Version Updates">
+    - Plan version updates carefully
+    - Test new versions in staging
+    - Maintain rollback procedures
+  </Accordion>
+</AccordionGroup>
+
+## Common Issues
+
+<CardGroup cols={2}>
+  <Card title="Version Not Found" icon="circle-exclamation">
+    ```python
+    404: Version ID doesn't exist or was deleted
+    ```
+    Verify version ID exists and is still active
+  </Card>
+  <Card title="Incompatible Versions" icon="triangle-exclamation">
+    ```python
+    422: Judge version not compatible
+    ```
+    Ensure judge and router versions are compatible
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+After understanding versions, you can:
+1. Start using specific versions in production
+2. Monitor version performance
+3. Plan version updates
+4. Manage version compatibility
+
+<Note>
+  Always test new versions thoroughly before deploying them to production.
+</Note>

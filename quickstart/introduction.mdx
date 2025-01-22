@@ -1,0 +1,65 @@
+---
+title: 'Introduction'
+description: 'Learn about the Martian router system'
+---
+
+## Overview
+
+The Martian router system helps you optimize your LLM usage by intelligently routing requests to the most appropriate model based on your requirements. The system consists of two main components:
+
+<CardGroup cols={2}>
+  <Card title="Routers" icon="route">
+    Direct each prompt to the optimal LLM based on cost or quality constraints
+  </Card>
+  <Card title="Judges" icon="gavel">
+    Define and measure the quality metrics that routers optimize for
+  </Card>
+</CardGroup>
+
+## How It Works
+
+<Frame>
+  ```mermaid
+  graph LR
+    A[User Request] --> B[Router]
+    B --> C{Select Model}
+    C --> D[High Quality<br/>High Cost]
+    C --> E[Medium Quality<br/>Medium Cost]
+    C --> F[Low Quality<br/>Low Cost]
+    D --> G[Response]
+    E --> G
+    F --> G
+    G --> H[Judge]
+    H -->|Quality Feedback| B
+  ```
+</Frame>
+
+## Key Features
+
+<AccordionGroup>
+  <Accordion title="Intelligent Routing">
+    Automatically select the best model based on your constraints and requirements.
+  </Accordion>
+  <Accordion title="Cost Optimization">
+    Set cost constraints to get the best possible quality within your budget.
+  </Accordion>
+  <Accordion title="Quality Control">
+    Define quality metrics and ensure responses meet your standards.
+  </Accordion>
+  <Accordion title="Continuous Improvement">
+    Learn from feedback to make better routing decisions over time.
+  </Accordion>
+</AccordionGroup>
+
+## Get Started
+
+Follow our step-by-step guide to:
+1. Set up your environment
+2. Create your first judge
+3. Create a router
+4. Start routing requests
+5. Monitor and optimize performance
+
+<Note>
+  Make sure you have a Martian API key before starting. If you don't have one, sign up at [withmartian.com](https://withmartian.com).
+</Note>

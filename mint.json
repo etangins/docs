@@ -52,9 +52,14 @@
     {
       "group": "Get Started",
       "pages": [
-        "introduction",
-        "quickstart",
-        "development"
+        "quickstart/introduction",
+        "quickstart/setup",
+        "quickstart/judges",
+        "quickstart/routers",
+        "quickstart/versions",
+        "quickstart/usage",
+        "quickstart/storage",
+        "quickstart/verification"
       ]
     },
     {

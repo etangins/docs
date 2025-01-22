@@ -13,19 +13,6 @@ Constraints can be specified as:
 - Numeric values (dollars or quality score)
 - Model names (match a specific model's cost or quality)
 
-<Frame>
-  ```mermaid
-  flowchart LR
-    A[Request] --> B[Router]
-    B --> C{Analyze}
-    C --> D[Check Models]
-    C --> E[Check Constraints]
-    D --> F[Select Model]
-    E --> F
-    F --> G[Response]
-  ```
-</Frame>
-
 The router will:
 1. Analyze your request
 2. Consider available models

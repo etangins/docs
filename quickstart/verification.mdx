@@ -11,28 +11,6 @@ The previous sections showed individual tests for each endpoint. Now let's combi
 - Reports progress clearly
 - Maintains test dependencies
 
-<Frame>
-  ```mermaid
-  flowchart TD
-    A[Create Judge] --> B[Verify Judge]
-    B --> C[Create Router]
-    C --> D[Verify Router]
-    D --> E[Get Version]
-    E --> F[Test Routing]
-    F --> G[Store Response]
-    G --> H[Add Judgement]
-    
-    style A fill:#b5d3e7
-    style B fill:#b5d3e7
-    style C fill:#d4e6c3
-    style D fill:#d4e6c3
-    style E fill:#ffd7b5
-    style F fill:#ffd7b5
-    style G fill:#e7c3c3
-    style H fill:#e7c3c3
-  ```
-</Frame>
-
 ## Test Organization
 
 The verification script combines the previous tests into a class:

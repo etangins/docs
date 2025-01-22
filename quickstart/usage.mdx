@@ -1,5 +1,219 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Using the Router'
+description: 'Learn how to make requests and test router functionality'
 ---
 
+## Concepts
+
+When using a router, you can specify either:
+- A cost constraint to get the best quality within a budget
+- A quality constraint to get the lowest cost meeting a quality threshold
+
+Constraints can be specified as:
+- Numeric values (dollars or quality score)
+- Model names (match a specific model's cost or quality)
+
+<Frame>
+  ```mermaid
+  flowchart LR
+    A[Request] --> B[Router]
+    B --> C{Analyze}
+    C --> D[Check Models]
+    C --> E[Check Constraints]
+    D --> F[Select Model]
+    E --> F
+    F --> G[Response]
+  ```
+</Frame>
+
+The router will:
+1. Analyze your request
+2. Consider available models
+3. Check cost-quality trade-offs
+4. Select the optimal model
+5. Return the response
+
+## Testing Router Requests
+
+Let's test the router with both types of constraints:
+
+<CodeGroup>
+```python Cost Constraint
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}'
+
+# Test with cost constraint
+cost_request = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "hello" to French'}
+        ]
+    },
+    'constraint': {'cost': 0.1}  # Maximum cost per request
+}
+
+response = requests.post(url, headers=headers, json=cost_request)
+cost_result = response.json()
+print("\nCost-constrained response:")
+print(cost_result['choices'][0]['message']['content'])
+```
+
+```python Quality Constraint
+# Test with quality constraint
+quality_request = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "hello" to French'}
+        ]
+    },
+    'constraint': {'quality': 0.8}  # Minimum quality score
+}
+
+response = requests.post(url, headers=headers, json=quality_request)
+quality_result = response.json()
+print("\nQuality-constrained response:")
+print(quality_result['choices'][0]['message']['content'])
+```
+</CodeGroup>
+
+### Expected Response Format
+
+```json
+{
+    "choices": [{
+        "message": {
+            "role": "assistant",
+            "content": "Bonjour"
+        }
+    }]
+}
+```
+
+## Constraint Types
+
+<CardGroup cols={2}>
+  <Card title="Cost Constraints" icon="money-bill">
+    ```python
+    # Numeric value
+    {'cost': 0.1}
+    
+    # Model name
+    {'cost': 'gpt-3.5-turbo'}
+    ```
+  </Card>
+  <Card title="Quality Constraints" icon="star">
+    ```python
+    # Numeric value
+    {'quality': 0.8}
+    
+    # Model name
+    {'quality': 'gpt-4'}
+    ```
+  </Card>
+</CardGroup>
+
+## Testing Multi-turn Conversations
+
+The router maintains context across multiple messages:
+
+```python
+# Test multi-turn conversation
+multi_turn_request = {
+    'request': {
+        'messages': [
+            {'role': 'system', 'content': 'You are a helpful assistant'},
+            {'role': 'user', 'content': 'Hi there'},
+            {'role': 'assistant', 'content': 'Hello! How can I help?'},
+            {'role': 'user', 'content': 'What\'s the weather?'}
+        ]
+    },
+    'constraint': {'quality': 0.8}
+}
+
+response = requests.post(url, headers=headers, json=multi_turn_request)
+print("\nMulti-turn response:")
+print(response.json()['choices'][0]['message']['content'])
+```
+
+## OpenAI Client Integration
+
+For production use, you can use the OpenAI client:
+
+```python
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure OpenAI client with Martian endpoint
+client = OpenAI(
+    base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1",
+    api_key=os.getenv('MARTIAN_API_KEY')
+)
+
+# Make request
+response = client.chat.completions.create(
+    model=router_id,  # Your router ID
+    messages=[
+        {"role": "user", "content": "Translate 'hello' to French"}
+    ],
+    extra_body={'cost': 0.1}  # Add constraint
+)
+
+print(response.choices[0].message.content)
+```
+
+## Response Verification
+
+<Steps>
+  <Step title="Check Status">
+    Verify response status code is 200
+  </Step>
+  <Step title="Validate Response">
+    Ensure response contains 'choices' array with messages
+  </Step>
+  <Step title="Extract Content">
+    Get content from choices[0].message.content
+  </Step>
+  <Step title="Handle Errors">
+    Check for error responses and handle appropriately
+  </Step>
+</Steps>
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Invalid Constraint">
+    Ensure you specify either cost OR quality, not both:
+    ```python
+    # This will fail
+    constraint = {
+        'cost': 0.1,
+        'quality': 0.8  # Don't specify both
+    }
+    ```
+  </Accordion>
+  <Accordion title="Invalid Values">
+    - Cost must be positive
+    - Quality must be between 0 and 1
+    - Model names must be valid
+  </Accordion>
+  <Accordion title="Missing Fields">
+    Request must include:
+    - messages array
+    - constraint object
+    - valid message format
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+After validating router functionality:
+1. Store the response for analysis
+2. Add judgements to improve routing
+3. Monitor router performance
+
+<Note>
+  Remember to store your router_id and version_id for the next steps.
+</Note>

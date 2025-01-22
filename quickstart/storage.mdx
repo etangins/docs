@@ -1,5 +1,139 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Storing Data and Feedback'
+description: 'Learn how to store request/response pairs and add judgements'
 ---
 
+## Concepts
+
+The system improves through:
+
+<CardGroup cols={2}>
+  <Card title="Request/Response Storage" icon="database">
+    - Builds interaction history
+    - Provides training data
+    - Enables performance analysis
+  </Card>
+  <Card title="Judgements" icon="star">
+    - Measure response quality
+    - Guide future routing decisions
+    - Help identify optimal models
+  </Card>
+</CardGroup>
+
+## Storing Request/Response Pairs
+
+Store a request/response pair:
+
+```python
+# Store response
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/response'
+
+data = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "hello" to French'}
+        ]
+    },
+    'response': quality_result  # Use result from previous step
+}
+
+response = requests.post(url, headers=headers, json=data)
+request_response_id = response.json()['request_response_id']
+print(f"\nStored response with ID: {request_response_id}")
+```
+
+<Note>
+The response parameter can use the result from a previous router request, or you can provide a new response object.
+</Note>
+
+### Expected Response Format
+
+```json
+{
+    "request_response_id": "req_resp_abc123..."
+}
+```
+
+## Adding Judgements
+
+Add a judgement using the stored request/response ID:
+
+```python
+# Add judgement
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request_response_id': request_response_id
+}
+
+response = requests.post(url, headers=headers, json=data)
+judgement_id = response.json()['judgement_id']
+print(f"Added judgement with ID: {judgement_id}")
+```
+
+### Alternative: Direct Judgement
+
+You can also submit a judgement with the request/response pair directly:
+
+```python
+# Add judgement using request/response pair
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "goodbye" to French'}
+        ]
+    },
+    'response': {
+        'choices': [{
+            'message': {
+                'role': 'assistant',
+                'content': 'Au revoir'
+            }
+        }]
+    }
+}
+
+response = requests.post(url, headers=headers, json=data)
+direct_judgement_id = response.json()['judgement_id']
+print(f"Added direct judgement with ID: {direct_judgement_id}")
+```
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Invalid Request Format">
+    Request messages must be an array of role/content objects:
+    ```python
+    'messages': [
+        {'role': 'user', 'content': 'message'}
+    ]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Response Format">
+    Response must include choices array with messages:
+    ```python
+    'choices': [{
+        'message': {
+            'role': 'assistant',
+            'content': 'response'
+        }
+    }]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Request/Response ID">
+    When using ID-based judgements, ensure the ID exists and belongs to this router version.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+After storing data and judgements, you can:
+1. Use the verification script to test all endpoints
+2. Monitor router performance
+3. Optimize routing based on feedback
+
+<Note>
+Remember to save request/response IDs for future reference and judgements.
+</Note>

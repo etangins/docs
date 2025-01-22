@@ -1,5 +1,197 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Verification Testing'
+description: 'Learn how to systematically test all router and judge endpoints'
 ---
 
+## Overview
+
+The previous sections showed individual tests for each endpoint. Now let's combine them into a complete verification suite that:
+- Tests all endpoints systematically
+- Handles errors gracefully
+- Reports progress clearly
+- Maintains test dependencies
+
+<Frame>
+  ```mermaid
+  flowchart TD
+    A[Create Judge] --> B[Verify Judge]
+    B --> C[Create Router]
+    C --> D[Verify Router]
+    D --> E[Get Version]
+    E --> F[Test Routing]
+    F --> G[Store Response]
+    G --> H[Add Judgement]
+    
+    style A fill:#b5d3e7
+    style B fill:#b5d3e7
+    style C fill:#d4e6c3
+    style D fill:#d4e6c3
+    style E fill:#ffd7b5
+    style F fill:#ffd7b5
+    style G fill:#e7c3c3
+    style H fill:#e7c3c3
+  ```
+</Frame>
+
+## Test Organization
+
+The verification script combines the previous tests into a class:
+
+```python
+class EndpointTester:
+    """Tests all Martian router and judge endpoints systematically."""
+    
+    def __init__(self):
+        # Initialize connection details
+        load_dotenv()
+        self.api_url = os.getenv("MARTIAN_API_URL")
+        self.org_id = os.getenv("MARTIAN_ORG_ID")
+        self.headers = {
+            'accept': 'application/json',
+            'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Store IDs for use across tests
+        self.judge_id: Optional[str] = None
+        self.router_id: Optional[str] = None
+        self.version_id: Optional[str] = None
+        self.request_response_id: Optional[str] = None
+```
+
+## Running All Tests
+
+The `run_all_tests()` method executes all tests in the correct sequence:
+
+```python
+def run_all_tests(self):
+    """Run all endpoint tests in sequence."""
+    try:
+        print("\nStarting endpoint tests...")
+        
+        # Step 1: Create judge
+        self.judge_id = self.create_judge()
+        print(f"✓ Created judge: {self.judge_id}")
+        
+        # Step 2: Verify judge
+        self.verify_judge()
+        print("✓ Verified judge details")
+        
+        # Step 3: Create router
+        self.router_id = self.create_router()
+        print(f"✓ Created router: {self.router_id}")
+        
+        # Step 4: Verify router
+        self.verify_router()
+        print("✓ Verified router details")
+        
+        # Step 5: Get version
+        self.version_id = self.get_router_version()
+        print(f"✓ Got version: {self.version_id}")
+        
+        # Step 6: Test routing
+        self.test_routing()
+        print("✓ Tested routing")
+        
+        # Step 7: Store response
+        self.request_response_id = self.store_response()
+        print(f"✓ Stored response: {self.request_response_id}")
+        
+        # Step 8: Add judgement
+        self.add_judgement()
+        print("✓ Added judgement")
+        
+        print("\nAll tests completed successfully! ✨")
+        
+    except Exception as e:
+        print(f"\n❌ Test failed: {str(e)}")
+        raise
+```
+
+## Error Handling
+
+Each test method includes comprehensive error handling:
+
+<CodeGroup>
+```python Validation Example
+def verify_judge(self):
+    """Verify judge details and listing."""
+    if not self.judge_id:
+        raise Exception("No judge ID available")
+        
+    # Get specific judge
+    url = f'{self.api_url}/org/{self.org_id}/judges/{self.judge_id}'
+    response = requests.get(url, headers=self.headers)
+    if response.status_code != 200:
+        raise Exception(f"Failed to get judge: {response.text}")
+```
+
+```python Testing Example
+def test_routing(self):
+    """Test routing with both cost and quality constraints."""
+    if not all([self.router_id, self.version_id]):
+        raise Exception("Missing router or version ID")
+        
+    url = f'{self.api_url}/org/{self.org_id}/routers/{self.router_id}/versions/{self.version_id}'
+    
+    response = requests.post(url, headers=self.headers, json=cost_request)
+    if response.status_code != 200:
+        raise Exception(f"Failed cost-constrained request: {response.text}")
+```
+</CodeGroup>
+
+## Using the Test Suite
+
+Run the complete test suite:
+
+```python verification_test.py
+from endpoint_tester import EndpointTester
+
+if __name__ == "__main__":
+    tester = EndpointTester()
+    tester.run_all_tests()
+```
+
+<Note>
+The test methods (`create_judge()`, `verify_router()`, etc.) use the same code shown in previous sections. See those sections for the detailed implementation of each test.
+</Note>
+
+## Common Test Issues
+
+<AccordionGroup>
+  <Accordion title="Dependencies">
+    Tests must run in order because later tests depend on IDs from earlier tests.
+  </Accordion>
+  <Accordion title="Error States">
+    Each test checks both successful operation and proper error handling.
+  </Accordion>
+  <Accordion title="API Limits">
+    Consider adding delays between tests if you hit rate limits.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Steps>
+  <Step title="Regular Testing">
+    Run the verification suite regularly to catch issues early
+  </Step>
+  <Step title="Error Monitoring">
+    Monitor test results to identify patterns in failures
+  </Step>
+  <Step title="Test Expansion">
+    Add your own test cases while maintaining the dependency chain
+  </Step>
+</Steps>
+
+## Next Steps
+
+After implementing verification testing:
+1. Set up automated test runs
+2. Monitor test results
+3. Add custom test cases
+4. Implement test reporting
+
+<Note>
+Remember to clean up test resources if you're running tests frequently in a production environment.
+</Note>

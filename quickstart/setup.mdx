@@ -49,43 +49,9 @@ Before you begin, ensure you have:
 
 ## Installation
 
+In the last section you should have already created a project directory, virtual environment, and installed all dependencies after creating a `requirements.txt` file. If you have not done all those steps, please refer to the previous page and complete all steps. Then continue below
+
 <Steps>
-  <Step title="Create Project Directory">
-    ```bash
-    mkdir martian-translator
-    cd martian-translator
-    ```
-  </Step>
-
-  <Step title="Create Virtual Environment">
-    <CodeGroup>
-      <CodeBlock title="Unix" language="bash">
-        python3 -m venv venv
-        source venv/bin/activate
-      </CodeBlock>
-
-      <CodeBlock title="Windows" language="bash">
-        python -m venv venv
-        venv\Scripts\activate
-      </CodeBlock>
-    </CodeGroup>
-  </Step>
-
-  <Step title="Install Dependencies">
-    Create a `requirements.txt` file:
-
-    ```txt requirements.txt
-    python-dotenv==1.0.1
-    requests==2.28.2
-    openai==1.59.3
-    ```
-
-    Install the dependencies:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-  </Step>
 
   <Step title="Configure Environment">
     Update the previously created `.env` file:

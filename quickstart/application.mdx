@@ -9,15 +9,15 @@ Let's start with a simple translation application. We'll first set up our enviro
 
 <Steps>
   <Step title="Create Project Directory">
-    ````bash
+    ```bash
     mkdir martian-translator
     cd martian-translator
-    ````
+    ```
   </Step>
 
   <Step title="Create Virtual Environment">
     Create and activate a virtual environment:
-    
+
     <CodeGroup>
       <CodeBlock title="Unix/macOS">
         ```bash
@@ -25,6 +25,7 @@ Let's start with a simple translation application. We'll first set up our enviro
         source venv/bin/activate
         ```
       </CodeBlock>
+
       <CodeBlock title="Windows">
         ```bash
         python -m venv venv
@@ -36,13 +37,15 @@ Let's start with a simple translation application. We'll first set up our enviro
 
   <Step title="Install Dependencies">
     Create a requirements.txt file:
-    ````txt requirements.txt
+
+    ```txt requirements.txt
     openai==1.59.3
     python-dotenv==1.0.1
     requests==2.28.2
-    ````
+    ```
 
     Install the dependencies:
+
     ```bash
     pip install -r requirements.txt
     ```
@@ -50,9 +53,10 @@ Let's start with a simple translation application. We'll first set up our enviro
 
   <Step title="Set Up Environment Variables">
     Create a .env file:
-    ````txt .env
+
+    ```txt .env
     OPENAI_API_KEY=your_api_key_here
-    ````
+    ```
   </Step>
 </Steps>
 
@@ -61,9 +65,10 @@ Let's start with a simple translation application. We'll first set up our enviro
 </Note>
 
 ## Basic Translation App
+
 Here's our starting application. Create a new file with the following code:
 
-````python basic_translator.py
+```python app.py
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -99,52 +104,59 @@ if __name__ == "__main__":
             
         result = translate(text)
         print(f"\nTranslation: {result}")
-````
+```
 
 ## Test the Application
 
-1. Make sure your virtual environment is activated:
-   <CodeGroup>
+1. Make sure your virtual environment is activated:<CodeGroup>
      <CodeBlock title="Unix/macOS">
-       ````bash
+       ```bash
        source venv/bin/activate
-       ````
+       ```
      </CodeBlock>
+
      <CodeBlock title="Windows">
-       ````bash
+       ```bash
        .\venv\Scripts\activate
-       ````
+       ```
      </CodeBlock>
    </CodeGroup>
 
-2. Run the translator:
-   ````bash
+2. Run the translator:```bash
    python basic_translator.py
-   ````
+   ```
 
 ## Current Limitations from Using OpenAI Instead of Martian
+
 This basic implementation works but has some drawbacks:
 
 <CardGroup cols={2}>
   <Card title="Fixed Model" icon="lock">
     Always uses GPT-4o-Mini, even for simple translations
   </Card>
+
   <Card title="Cost Inefficient" icon="money-bill">
     No way to optimize for cost vs quality
   </Card>
+
   <Card title="No Quality Metrics" icon="chart-line">
     Can't track or improve translation quality
   </Card>
+
   <Card title="No Feedback Loop" icon="rotate">
     Doesn't learn from past translations
   </Card>
 </CardGroup>
 
 In the following sections, we'll modify this application to use Martian's router system, which will help us:
-- Route requests to appropriate models based on needs
-- Optimize for cost and quality
-- Collect and use quality feedback
-- Monitor and improve translation performance
+
+* Route requests to appropriate models based on needs
+
+* Optimize for cost and quality
+
+* Collect and use quality feedback
+
+* Monitor and improve translation performance
 
 <Note>
   Remember to never commit your .env file to version control. Add it to your .gitignore file to prevent accidental exposure of your API key.

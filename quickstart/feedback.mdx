@@ -3,165 +3,188 @@ title: 'Providing Feedback'
 description: 'Help your router learn and improve automatically'
 ---
 
-## Concepts
-
+## Understanding Feedback
 The system improves through:
-
 <CardGroup cols={2}>
-  <Card title="Request/Response Storage" icon="database">
-    * Builds interaction history
-
-    * Provides training data
-
-    * Enables performance analysis
+  <Card title="Direct Judgements" icon="star">
+    - Immediate quality scoring
+    - Guide future routing decisions
+    - Help identify optimal models
   </Card>
-
-  <Card title="Judgements" icon="star">
-    * Measure response quality
-
-    * Guide future routing decisions
-
-    * Help identify optimal models
+  <Card title="Request/Response Storage" icon="database">
+    - Builds interaction history
+    - Provides training data
+    - Enables performance analysis
   </Card>
 </CardGroup>
 
-## Adding Judgements
+## Implementation
+Add feedback functionality to your translator:
 
-Add a judgement using the stored request/response ID:
+````python basic_translator.py
+from config import client, API_URL, ORG_ID, HEADERS
+import requests
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 
-```python feedback.py
-# Add judgement
-url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
-
-data = {
-    'request_response_id': request_response_id
-}
-
-response = requests.post(url, headers=headers, json=data)
-judgement_id = response.json()['judgement_id']
-print(f"Added judgement with ID: {judgement_id}")
-```
-
-## Storing Request/Response Pairs
-
-Store a request/response pair:
-
-Let's create a new file called feedback.py.
-
-```python feedback.py
-# Store response
-url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/response'
-
-data = {
-    'request': {
-        'messages': messages=[
-            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-                - Identify if the input is Korean or English
-                - If Korean, translate to English
-                - If English, translate to Korean
-                - Preserve meaning, tone, and nuance
-                - Maintain proper grammar and formality level
-                """},
-            {"role": "user", "content": "<translate>Tell me a joke?</translate>"}
+def translate(text: str, router_name: str = "translation-router") -> str:
+    """Translate text between Korean and English with automatic model selection."""
+    response = client.chat.completions.create(
+        model=router_name,
+        messages=[
+            {"role": "system", "content": "You are a skilled Korean-English translator."},
+            {"role": "user", "content": text}
         ]
-    },
-    'response': quality_response  # Use result from previous step
-}
+    )
+    return response.choices[0].message.content.strip()
 
-response = requests.post(url, headers=headers, json=data)
-request_response_id = response.json()['request_response_id']
-print(f"\nStored response with ID: {request_response_id}")
-```
-
-<Note>
-  The response parameter can use the result from a previous router request, or you can provide a new response object.
-</Note>
-
-### Expected Response Format
-
-```json
-{
-    "request_response_id": "req_resp_abc123..."
-}
-```
-
-### Alternative: Direct Judgement
-
-You can also submit a judgement with the request/response pair directly:
-
-```python feedback.py
-# Add judgement using request/response pair
-url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
-
-data = {
-    'request': {
-        'messages': [
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-                - Identify if the input is Korean or English
-                - If Korean, translate to English
-                - If English, translate to Korean
-                - Preserve meaning, tone, and nuance
-                - Maintain proper grammar and formality level
-                """},
-            {'role': 'user', 'content': '<translate>goodbye</translate>'}
-        ]
-    },
-    'response': {
-        'choices': [{
-            'message': {
-                'role': 'assistant',
-                'content': '안녕히 가세요'
-            }
-        }]
+def provide_direct_feedback(
+    text: str,
+    translation: str,
+    score: float,
+    rationale: str
+) -> str:
+    """
+    Provide immediate feedback on translation quality.
+    
+    Args:
+        text: Original text to translate
+        translation: The translation to evaluate
+        score: Quality score (0-1)
+        rationale: Explanation of the score
+    
+    Returns:
+        judgement_id: Unique identifier for the feedback
+    """
+    url = f"{API_URL}/org/{ORG_ID}/judgement"
+    
+    feedback_data = {
+        'request': {
+            'messages': [
+                {'role': 'user', 'content': text}
+            ]
+        },
+        'response': {
+            'choices': [{
+                'message': {
+                    'content': translation
+                }
+            }]
+        },
+        'score': score,
+        'rationale': rationale
     }
-}
+    
+    response = requests.post(url, headers=HEADERS, json=feedback_data)
+    return response.json()['judgement_id']
 
-response = requests.post(url, headers=headers, json=data)
-direct_judgement_id = response.json()['judgement_id']
-print(f"Added direct judgement with ID: {direct_judgement_id}")
-```
+def store_translation_pair(
+    text: str,
+    translation: str,
+    router_id: Optional[str] = None,
+    version_id: Optional[str] = None
+) -> str:
+    """
+    Store a request/response pair for future analysis.
+    
+    Args:
+        text: Original text
+        translation: Generated translation
+        router_id: Optional router identifier
+        version_id: Optional version identifier
+    
+    Returns:
+        request_response_id: Unique identifier for the stored pair
+    """
+    url = f"{API_URL}/org/{ORG_ID}/response"
+    if router_id and version_id:
+        url = f"{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response"
+    
+    data = {
+        'request': {
+            'messages': [
+                {'role': 'user', 'content': text}
+            ]
+        },
+        'response': {
+            'choices': [{
+                'message': {
+                    'content': translation
+                }
+            }]
+        }
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response.json()['request_response_id']
 
-## Common Issues
+# Example usage
+if __name__ == "__main__":
+    # Translate text
+    text = "안녕하세요"
+    translation = translate(text)
+    
+    # Provide direct feedback
+    judgement_id = provide_direct_feedback(
+        text=text,
+        translation=translation,
+        score=0.95,
+        rationale="Accurate and natural translation"
+    )
+    print(f"Recorded feedback with ID: {judgement_id}")
+    
+    # Store for later analysis
+    pair_id = store_translation_pair(text, translation)
+    print(f"Stored translation pair with ID: {pair_id}")
+````
+
+## Understanding Response Formats
 
 <AccordionGroup>
-  <Accordion title="Invalid Request Format">
-    Request messages must be an array of role/content objects:
-
-    ```python
-    'messages': [
-        {'role': 'user', 'content': 'message'}
-    ]
+  <Accordion title="Direct Feedback Response">
+    ```json
+    {
+        "judgement_id": "judge_abc123...",
+        "score": 0.95,
+        "rationale": "Accurate and natural translation"
+    }
     ```
   </Accordion>
-
-  <Accordion title="Invalid Response Format">
-    Response must include choices array with messages:
-
-    ```python
-    'choices': [{
-        'message': {
-            'role': 'assistant',
-            'content': 'response'
-        }
-    }]
+  <Accordion title="Stored Pair Response">
+    ```json
+    {
+        "request_response_id": "req_resp_xyz789..."
+    }
     ```
   </Accordion>
+</AccordionGroup>
 
-  <Accordion title="Invalid Request/Response ID">
-    When using ID-based judgements, ensure the ID exists and belongs to this router version.
+## Best Practices
+1. Provide feedback regularly to improve routing decisions
+2. Include detailed rationale for low scores
+3. Store important translations for future analysis
+4. Use consistent scoring criteria
+
+## Common Issues
+<AccordionGroup>
+  <Accordion title="Invalid Score Range">
+    Ensure scores are between 0 and 1
+  </Accordion>
+  <Accordion title="Missing Rationale">
+    Always include explanatory rationale, especially for non-perfect scores
+  </Accordion>
+  <Accordion title="Request Format">
+    Verify message format matches OpenAI chat completion format
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
-
-After storing data and judgements, you can:
-
-1. Use the verification script to test all endpoints
-
-2. Monitor router performance
-
-3. Optimize routing based on feedback
+After implementing feedback:
+1. Monitor router performance
+2. Review feedback patterns
+3. Track quality improvements
+4. Analyze stored translations
 
 <Note>
-  Remember to save request/response IDs for future reference and judgements.
+Remember to save response IDs for future reference. These can be useful for tracking improvements and analyzing patterns.
 </Note>

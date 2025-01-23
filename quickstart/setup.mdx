@@ -1,0 +1,154 @@
+---
+title: 'Setup'
+description: 'Set up your environment for using Martian'
+---
+Let's add Martian to your application. This involves a simple installation and changing only a few lines of code.
+## Get Your API Key
+<Steps>
+  <Step title="Sign In">
+    Go to [withmartian.com/workbench](https://withmartian.com/workbench)
+  </Step>
+  <Step title="Access Settings">
+    Click on the user profile icon in the top right corner
+  </Step>
+  <Step title="Generate Key">
+    Navigate to Account > Organization > API Keys > Add API Key
+  </Step>
+  <Step title="Save Credentials">
+    Copy your API key and organization ID to your `.env` file
+  </Step>
+</Steps>
+## Prerequisites
+Before you begin, ensure you have:
+<Check>
+  Python 3.7 or higher installed
+</Check>
+<Check>
+  pip (Python package installer)
+</Check>
+<Check>
+  A Martian API key
+</Check>
+## Installation
+<Steps>
+  <Step title="Create Project Directory">
+    ```bash
+    mkdir martian-translator
+    cd martian-translator
+    ```
+  </Step>
+  <Step title="Create Virtual Environment">
+    <CodeGroup>
+      <CodeBlock title="Unix">
+        ```bash
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
+      </CodeBlock>
+      <CodeBlock title="Windows">
+        ```bash
+        python -m venv venv
+        venv\Scripts\activate
+        ```
+      </CodeBlock>
+    </CodeGroup>
+  </Step>
+  <Step title="Install Dependencies">
+    Create a `requirements.txt` file:
+    ```txt requirements.txt
+    python-dotenv==1.0.1
+    requests==2.28.2
+    openai==1.59.3
+    ```
+    Install the dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+  </Step>
+  <Step title="Configure Environment">
+    Create a `.env` file:
+    ```env .env
+    MARTIAN_API_URL=https://withmartian.com/api
+    MARTIAN_API_KEY=your_api_key_here
+    MARTIAN_ORG_ID=your_org_id_here
+    ```
+    Create `config.py` to load environment variables:
+    ```python config.py
+    from dotenv import load_dotenv
+    import os
+    # Load environment variables once
+    load_dotenv()
+    # Common API configuration
+    API_URL = os.getenv("MARTIAN_API_URL")
+    ORG_ID = os.getenv("MARTIAN_ORG_ID")
+    HEADERS = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}',
+        'Content-Type': 'application/json'
+    }
+    # Configure OpenAI client for translations
+    from openai import OpenAI
+    client = OpenAI(
+        base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1",
+        api_key=os.getenv('MARTIAN_API_KEY')
+    )
+    ```
+  </Step>
+</Steps>
+<Warning>
+  Never commit your `.env` file to version control. Add it to your `.gitignore` file to prevent accidental exposure of your credentials.
+</Warning>
+## Call LLMs through Martian and Test Your Setup
+Calling LLMs through Martian requires changing only a couple lines of code.
+1. Replace the OpenAI api_key parameter
+2. Replace the base_url parameters from the
+3. Specify the LLM you wish to call by changing the `model` parameter to one of hundreds of our supported models.
+See the `basic_translator.py` example file below:
+```python basic_translator.py
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+# Load environment variables
+load_dotenv()
+# Configure client with Martian
+client = OpenAI(
+    api_key=os.getenv("MARTIAN_API_KEY"),
+    base_url="https://api.withmartian.com/v1/completions"
+)
+def translate(text):
+    """Translate text between Korean and English."""
+    response = client.chat.completions.create(
+        model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
+        messages=[
+            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {"role": "user", "content": text}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+# Test the setup
+if __name__ == "__main__":
+    result = translate("Hello, how are you?")
+    print(f"\nTranslation: {result}")
+```
+That's it! With these simple changes, you're now ready to use Martian. In the next sections, we'll explore how to optimize your application using Martian's routing capabilities.
+## Troubleshooting
+<AccordionGroup>
+  <Accordion title="402 Error">
+    You need to add a credit card or contact the Martian team to use your API key.
+  </Accordion>
+  <Accordion title="Authentication Error">
+    Verify your API key is correctly copied and there are no extra spaces.
+  </Accordion>
+  <Accordion title="Import Errors">
+    Ensure you've activated your virtual environment and installed all requirements.
+  </Accordion>
+  <Accordion title="OpenAI Client Error">
+    Check that your MARTIAN_API_URL includes '/api' and your API key is valid.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,197 @@
+---
+title: 'Creating Judges'
+description: 'Set up quality metrics for your router'
+---
+## Understanding Judges
+Judges are the foundation of Martian's quality optimization system. They:
+- Define what "good" means for your specific use case
+- Automatically evaluate model outputs
+- Guide router decisions for model selection
+- Enable continuous quality improvement
+<CardGroup cols={2}>
+  <Card title="Quality Definition" icon="scale-balanced">
+    Define custom quality metrics specific to your translation needs
+  </Card>
+  <Card title="Automatic Evaluation" icon="robot">
+    Automatically score translations based on your criteria
+  </Card>
+</CardGroup>
+## Creating a Translation Judge
+Let's create a judge for Korean-English translation:
+<Steps>
+  <Step title="Create Basic Judge">
+    ```python
+    def create_translation_judge():
+        url = f'{API_URL}/org/{ORG_ID}/judges'
+        data = {
+            'name': 'korean-english-judge',
+            'description': 'Evaluates Korean-English translation quality'
+        }
+        response = requests.post(url, headers=HEADERS, json=data)
+        judge_id = response.json()['judge_id']
+        print(f"Created judge with ID: {judge_id}")
+        return judge_id
+    ```
+  </Step>
+  <Step title="Get Judge Details">
+    ```python
+    def get_judge_info(judge_id):
+        url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}'
+        response = requests.get(url, headers=HEADERS)
+        details = response.json()
+        print(f"Name: {details['name']}")
+        print(f"Description: {details['description']}")
+        print(f"Created: {details['created_at']}")
+        print(f"Latest Version: {details['latest']}")
+        return details
+    ```
+  </Step>
+  <Step title="Test Judge">
+    ```python
+    def test_judge(judge_id, version_id):
+        url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}'
+        
+        # Example translation pair
+        test_data = {
+            'request': {
+                'messages': [
+                    {'role': 'user', 'content': '안녕하세요'}
+                ]
+            },
+            'completion': {
+                'choices': [{
+                    'message': {
+                        'content': 'Hello'
+                    }
+                }]
+            }
+        }
+        
+        response = requests.post(url, headers=HEADERS, json=test_data)
+        result = response.json()
+        print(f"Score: {result['score']}")
+        print(f"Rationale: {result['rationale']}")
+        return result
+    ```
+  </Step>
+</Steps>
+## Judge Versions
+Like routers, judges have versions that improve over time. Each version represents a refinement in how quality is evaluated.
+```python
+def manage_judge_versions(judge_id):
+    """List and manage judge versions."""
+    # Get all versions
+    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions'
+    response = requests.get(url, headers=HEADERS)
+    versions = response.json()['versions']
+    
+    print("Judge Versions:")
+    for version in versions:
+        print(f"\nVersion ID: {version['version_id']}")
+        print(f"Created: {version['created_at']}")
+        print(f"Slug: {version['slug']}")
+        print(f"IAA Score: {version['iaa']}")
+        
+    return versions
+def get_version_details(judge_id, version_id):
+    """Get detailed information about a specific version."""
+    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}'
+    response = requests.get(url, headers=HEADERS)
+    version = response.json()
+    
+    print(f"\nVersion Details:")
+    print(f"Created: {version['created_at']}")
+    print(f"IAA Score: {version['iaa']}")
+    return version
+```
+<Note>
+  The IAA (Inter-Annotator Agreement) score indicates how consistently a judge version evaluates similar translations.
+</Note>
+## Using Judges with Routers
+Judges are automatically connected to routers during router creation. Here's how to use them together:
+```python
+def create_router_with_judge(judge_id):
+    """Create a router that uses a specific judge."""
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    data = {
+        'name': 'korean-english-router',
+        'description': 'Routes Korean-English translation requests',
+        'judge_id': judge_id,
+        'baseline_model': 'gpt-4'
+    }
+    response = requests.post(url, headers=HEADERS, json=data)
+    router_id = response.json()['router_id']
+    return router_id
+def store_translation_feedback(router_id, version_id, request, response):
+    """Store a translation pair for judge evaluation."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response'
+    data = {
+        'request': request,
+        'response': response
+    }
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response.json()['request_response_id']
+```
+## Translation Quality Metrics
+Judges evaluate translations based on multiple criteria:
+<AccordionGroup>
+  <Accordion title="Accuracy">
+    - Meaning preservation
+    - Cultural nuance
+    - Context awareness
+  </Accordion>
+  <Accordion title="Fluency">
+    - Natural language flow
+    - Grammar correctness
+    - Idiomatic usage
+  </Accordion>
+  <Accordion title="Style">
+    - Tone consistency
+    - Formality level
+    - Target audience appropriateness
+  </Accordion>
+</AccordionGroup>
+### Monitoring Performance
+Track judge and router performance together:
+```python
+def monitor_translation_quality(router_id, version_id, time_period='7d'):
+    """Monitor translation quality metrics."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/metrics'
+    params = {'period': time_period}
+    response = requests.get(url, headers=HEADERS, params=params)
+    metrics = response.json()
+    
+    print("\nQuality Metrics:")
+    print(f"Average Score: {metrics['average_score']:.2f}")
+    print(f"Score Distribution:")
+    for range_key, count in metrics['score_distribution'].items():
+        print(f"  {range_key}: {count} translations")
+        
+    return metrics
+```
+## Best Practices
+1. Test judge behavior with known good/bad translations
+2. Monitor IAA scores across versions
+3. Regularly review judge evaluations
+4. Calibrate quality thresholds based on business needs
+## Troubleshooting
+<AccordionGroup>
+  <Accordion title="Inconsistent Scores">
+    Check IAA scores and review recent evaluations
+  </Accordion>
+  <Accordion title="Low Quality Scores">
+    Review quality criteria and judge version
+  </Accordion>
+  <Accordion title="Integration Issues">
+    Verify judge ID and version compatibility
+  </Accordion>
+</AccordionGroup>
+## Next Steps
+After setting up your judge:
+1. Configure router with judge ID
+2. Test translation quality scoring
+3. Monitor performance metrics
+4. Set up quality alerts
+<Note>
+  Remember to periodically review judge versions to ensure they align with your current quality standards.
+</Note>

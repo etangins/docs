@@ -11,55 +11,27 @@ Let's create a new file called `create_router.py`
 
 First, create a router (this only needs to be done once):
 
-<Steps>
-  <Step title="Initialize Router Creation">
-    ```python create_router.py
-    from config import API_URL, ORG_ID, HEADERS
-    import requests
+```python create_router.py
+# Initialize Router Creation
+from config import API_URL, ORG_ID, HEADERS
+import requests
 
-    url = f'{API_URL}/org/{ORG_ID}/routers'
-    ```
-  </Step>
+url = f'{API_URL}/org/{ORG_ID}/routers'
 
-  <Step title="Define Router Parameters">
-    ```python create_router.py
-    data = {
-        'name': 'translation-router',
-        'description': 'Routes Korean-English translation requests based on quality needs',
-        'baseline_model': 'gpt-4o-mini'  # The model you currently use for the application
-    }
-    ```
-  </Step>
+# Define Router Parameters
+data = {
+  'name': 'translation-router',
+  'description': 'Routes Korean-English translation requests based on quality needs',
+  'baseline_model': 'gpt-4o-mini'  # The model you currently use for the application
+}
 
-  <Step title="Create Router">
-    ```python create_router.py
-    response = requests.post(url, headers=HEADERS, json=data)
-    router_id = response.json()['router_id']
-    print(f"Created translation router with ID: {router_id}")
-    ```
-  </Step>
-</Steps>
+# Create Router
+response = requests.post(url, headers=HEADERS, json=data)
+router_id = response.json()['router_id']
+print(f"Created translation router with ID: {router_id}")
+```
 
 It's important to set the baseline to the existing model you are using to generate the maximum quality improvement and cost reduction achievable. You will be able to showcase your performance improvement to others later on.
-
-## Verifying Router Creation
-
-After creating a router, verify its details:
-
-```python
-def get_router_details(router_id: str):
-    """Retrieve details about a specific translation router."""
-    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}'
-    response = requests.get(url, headers=HEADERS)
-    return response.json()
-
-details = get_router_details(router_id)
-print(f"Name: {details['name']}")
-print(f"Description: {details['description']}")
-print(f"Judge ID: {details['judge_id']}")
-print(f"Baseline Model: {details['baseline_model']}")
-print(f"Created at: {details['created_at']}")
-```
 
 ## Use the Router
 

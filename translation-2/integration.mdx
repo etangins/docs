@@ -15,11 +15,14 @@ from martian import Router
 router = Router.create(
     name="translation-router",
     description="Routes translation requests to optimal models"
+    baseline="gpt-4o"
 )
 
 # Save this router ID for your application
 print(f"Created router with ID: {router.id}")
 ```
+
+It's important to set the baseline to the existing model you are using to generate the maximum quality improvement and cost reduction achievable. You will be able to showcase your performance improvement to others later on.
 
 ## Use the Router
 Simply update your model parameter to use the router:

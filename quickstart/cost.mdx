@@ -28,9 +28,9 @@ or
 a `string` representing `a model which should cost similar to run the request as the router costs`
 
 ## Using the Cost Parameter
-Because the router must take in either a cost or quality parameter, the cost parameter was previously set. Let's modify it.
+Let's set our cost parameter for the router.
 
-```python app.py
+```diff app.py
 def translate(text, cost):    
     response = router.completions.create(
         model="translation-router",
@@ -38,9 +38,9 @@ def translate(text, cost):
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
         ],
-        extra_body={
-          "cost": cost # Target cost for this request
-        }
++         extra_body={
++           "cost": cost # Target cost for this request
++         }
     )
     return response.choices[0].message.content.strip()
 
@@ -48,60 +48,6 @@ def translate(text, cost):
 result = translate("안녕하세요", cost=0.05)
 # The following result will be sent to the best performing model with an expected cost equal or below gpt-4o-mini price
 result = translate("이름이 뭐에요", cost="gpt-4o-mini")
-```
-
-## Demonstrating Cost Savings
-In this example, we will pretend each request uses roughly the same number of tokens and we will assign rough estimates to the level of cost per model. In reality, token usage and model pricing can vary.
-
-```python cost.py
-def demonstrate_cost_savings():
-    """
-    1. Translates several Korean texts, each with a maximum per-request budget.
-    2. Compares total cost to a "premium model" single-cost approach.
-    3. Prints out translations and the overall cost savings.
-    """
-
-    # Example tasks: (Korean text, desired max per-request cost)
-    tasks = [
-        ("안녕하세요!", 0.00003),  # Simple greeting
-        ("감사합니다. 주문이 확인되었습니다.", 0.0002),  # Email response
-        ("서버 구성 방법을 설명해 드리겠습니다.", 0.0005),  # Technical doc
-        ("본 계약은 법적 구속력이 있습니다.", 0.001),  # Legal content
-    ]
-
-    # Suppose if we always used a premium model (like GPT-o1),
-    # we assume the *average* cost might be around $0.001 per request.
-    fixed_model_cost_per_request = 0.001
-
-    results = []
-    total_routed_cost = 0.0
-
-    for text, max_cost in tasks:
-        translation = translate(text, cost=max_cost)
-        results.append((text, translation, max_cost))
-        # For demonstration, assume the actual cost is exactly the max cost
-        # In a real scenario, it might be less (or vary), depending on usage.
-        total_routed_cost += max_cost
-
-    # Calculate the hypothetical fixed-model total
-    total_fixed_cost = fixed_model_cost_per_request * len(tasks)
-
-    # Calculate the difference
-    savings = total_fixed_cost - total_routed_cost
-
-    # Print out the translations
-    for (korean_text, english_text, used_cost) in results:
-        print(f"\nKorean: {korean_text}")
-        print(f"English Translation: {english_text}")
-        print(f"Max Per-Request Cost (Budget): ${used_cost:.3f}")
-
-    # Print out cost comparison
-    print("\n====================================")
-    print(f"Using a single premium model for all tasks would cost about: "
-          f"${total_fixed_cost:.2f}")
-    print(f"Routing with per-request budgets costs (approx): "
-          f"${total_routed_cost:.2f}")
-    print(f"Total savings: ${savings:.2f} for {len(tasks)} translations")
 ```
 
 <Note>

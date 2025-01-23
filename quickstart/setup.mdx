@@ -113,7 +113,7 @@ load_dotenv()
 # Configure client with Martian
 client = OpenAI(
     api_key=os.getenv("MARTIAN_API_KEY"),
-    base_url="https://api.withmartian.com/v1/completions"
+    base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
 )
 def translate(text):
     """Translate text between Korean and English."""

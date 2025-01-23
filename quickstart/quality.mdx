@@ -1,6 +1,6 @@
 ---
-title: 'Quality Optimization'
-description: 'Use quality constraints and feedback to improve translations'
+title: "Routing With A Quality Constraint"
+description: "Use quality constraints and feedback to improve translations"
 ---
 
 While cost optimization provides immediate benefits, you can further improve your router's performance using quality constraints and feedback.
@@ -9,17 +9,17 @@ Instead of specifying a cost, you can request a minimum quality level that must 
 
 Like with the cost parameter, quality can be specified in two ways.
 
-Either it can be a 
-`float` representing a `minimum quality score (according to our scoring mechanism) of the request` 
+Either it can be a
+`float` representing a `minimum quality score (according to our scoring mechanism) of the request`
 
-or 
+or
 
 a `string` representing the `quality of the baseline model to be maintained` while reducing cost as much as possible
 
 Often, users have an existing model they are using in their application and they would like to reduce cost as much as possible but ensure that their users don't see a reduction in output quality. This is the perfect situation to use the quality parameter and specify the current model in a string as the value.
 
-
 ## Using the Quality Parameter
+
 Add a quality constraint to your router requests:
 
 ```python
@@ -44,18 +44,27 @@ result = translate("법적 문서입니다.", quality=0.9)
 ```
 
 ## Quality Scores and Feedback
+
 The quality parameter becomes much more powerful as you provide feedback. When you tell Martian about output quality, it learns to:
-- Predict which models perform best for different content types
-- Select models that consistently meet your quality requirements
-- Understand your specific quality definition
+
+* Predict which models perform best for different content types
+
+* Select models that consistently meet your quality requirements
+
+* Understand your specific quality definition
 
 ## Automatic Improvement
+
 As you provide feedback (covered in the next section), your router automatically:
-- Learns from translation quality ratings
-- Improves model selection accuracy
-- Creates new versions with better performance
-- Updates its quality predictions
+
+* Learns from translation quality ratings
+
+* Improves model selection accuracy
+
+* Creates new versions with better performance
+
+* Updates its quality predictions
 
 <Note>
-There is no such thing as a universal measure of output quality. It is an inherently subjective metric. For example, some users may prefer answers which are really detailed and personalized answers while others may prefer answers which are very concise and corporate-sounding. This means you must specify details about your definition of quality in order for the router to optimize for it.
+  There is no such thing as a universal measure of output quality. It is an inherently subjective metric. For example, some users may prefer answers which are really detailed and personalized answers while others may prefer answers which are very concise and corporate-sounding. This means you must specify details about your definition of quality in order for the router to optimize for it.
 </Note>

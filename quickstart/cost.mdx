@@ -38,7 +38,9 @@ def translate(text, cost):
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
         ],
-        cost=cost  # Maximum cost for this request
+        extra_body={
+          "cost": cost # Maximum cost for this request
+        },
     )
     return response.choices[0].message.content.strip()
 

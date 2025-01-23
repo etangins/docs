@@ -9,14 +9,19 @@ The system improves through:
 
 <CardGroup cols={2}>
   <Card title="Request/Response Storage" icon="database">
-    - Builds interaction history
-    - Provides training data
-    - Enables performance analysis
+    * Builds interaction history
+
+    * Provides training data
+
+    * Enables performance analysis
   </Card>
+
   <Card title="Judgements" icon="star">
-    - Measure response quality
-    - Guide future routing decisions
-    - Help identify optimal models
+    * Measure response quality
+
+    * Guide future routing decisions
+
+    * Help identify optimal models
   </Card>
 </CardGroup>
 
@@ -30,11 +35,18 @@ url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers
 
 data = {
     'request': {
-        'messages': [
-            {'role': 'user', 'content': 'Translate "hello" to French'}
+        'messages': messages=[
+            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {"role": "user", "content": "<translate>Tell me a joke?</translate>"}
         ]
     },
-    'response': quality_result  # Use result from previous step
+    'response': quality_response  # Use result from previous step
 }
 
 response = requests.post(url, headers=headers, json=data)
@@ -43,7 +55,7 @@ print(f"\nStored response with ID: {request_response_id}")
 ```
 
 <Note>
-The response parameter can use the result from a previous router request, or you can provide a new response object.
+  The response parameter can use the result from a previous router request, or you can provide a new response object.
 </Note>
 
 ### Expected Response Format
@@ -105,14 +117,17 @@ print(f"Added direct judgement with ID: {direct_judgement_id}")
 <AccordionGroup>
   <Accordion title="Invalid Request Format">
     Request messages must be an array of role/content objects:
+
     ```python
     'messages': [
         {'role': 'user', 'content': 'message'}
     ]
     ```
   </Accordion>
+
   <Accordion title="Invalid Response Format">
     Response must include choices array with messages:
+
     ```python
     'choices': [{
         'message': {
@@ -122,6 +137,7 @@ print(f"Added direct judgement with ID: {direct_judgement_id}")
     }]
     ```
   </Accordion>
+
   <Accordion title="Invalid Request/Response ID">
     When using ID-based judgements, ensure the ID exists and belongs to this router version.
   </Accordion>
@@ -130,10 +146,13 @@ print(f"Added direct judgement with ID: {direct_judgement_id}")
 ## Next Steps
 
 After storing data and judgements, you can:
+
 1. Use the verification script to test all endpoints
+
 2. Monitor router performance
+
 3. Optimize routing based on feedback
 
 <Note>
-Remember to save request/response IDs for future reference and judgements.
+  Remember to save request/response IDs for future reference and judgements.
 </Note>

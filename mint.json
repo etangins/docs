@@ -35,44 +35,17 @@
   ],
   "navigation": [
     {
-      "group": "Translation New Quickstart",
-      "pages": [
-        "translation-2/introduction",
-        "translation-2/application",
-        "translation-2/setup",
-        "translation-2/integration",
-        "translation-2/cost",
-        "translation-2/quality",
-        "translation-2/feedback",
-        "translation-2/versions",
-        "translation-2/judges"
-      ]
-    },
-    {
-      "group": "Translation Quickstart",
-      "pages": [
-        "translation/introduction",
-        "translation/application",
-        "translation/setup",
-        "translation/judges",
-        "translation/routers",
-        "translation/versions",
-        "translation/usage",
-        "translation/storage",
-        "translation/verification"
-      ]
-    },
-    {
-      "group": "General Quickstart",
+      "group": "Quickstart",
       "pages": [
         "quickstart/introduction",
+        "quickstart/application",
         "quickstart/setup",
-        "quickstart/judges",
-        "quickstart/routers",
+        "quickstart/integration",
+        "quickstart/cost",
+        "quickstart/quality",
+        "quickstart/feedback",
         "quickstart/versions",
-        "quickstart/usage",
-        "quickstart/storage",
-        "quickstart/verification"
+        "quickstart/judges"
       ]
     }
   ],

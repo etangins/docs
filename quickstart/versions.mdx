@@ -25,6 +25,9 @@ If you want to always use the latest version of the router, you can simply speci
   </Card>
 </CardGroup>
 ## Managing Versions
+
+Let's create a new file called `route_manager.py` and add the following code blocks to it to use router versioning functionality
+
 <Steps>
   <Step title="List Router Versions">
     ```python router_manager.py
@@ -39,7 +42,7 @@ If you want to always use the latest version of the router, you can simply speci
     ```
   </Step>
   <Step title="Get Version Details">
-    ```python
+    ```python router_manager.py
     version_id = versions[0]['version_id']  # Get latest version
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
     response = requests.get(url, headers=HEADERS)
@@ -52,7 +55,7 @@ If you want to always use the latest version of the router, you can simply speci
     ```
   </Step>
   <Step title="Choose Router Version">
-    ```python
+    ```python basic_translator.py
     def translate(text, router_name="translation-router"):
         """
         Translate using either latest version (translation-router) 
@@ -76,7 +79,7 @@ If you want to always use the latest version of the router, you can simply speci
 </Steps>
 ## Cost-Quality Points
 Each router version maintains a set of cost-quality points that show the router's performance curve:
-```python
+```python basic_translator.py
 def analyze_version_performance(router_id, version_id):
     """Analyze cost-quality tradeoffs for a version."""
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
@@ -97,20 +100,20 @@ def analyze_version_performance(router_id, version_id):
 <AccordionGroup>
   <Accordion title="Using Latest Version">
     Always use the base router name to get the latest version:
-    ```python
+    ```python basic_translator.py
     model="translation-router"  # Always uses latest version
     ```
   </Accordion>
   <Accordion title="Using Specific Version">
     Use numbered versions for consistency:
-    ```python
+    ```python basic_translator.py
     model="translation-router-1"  # Always uses version 1
     model="translation-router-2"  # Always uses version 2
     ```
   </Accordion>
   <Accordion title="Version Migration">
     Test new versions before switching production traffic:
-    ```python
+    ```python basic_translator.py
     # Test new version
     result = translate("테스트", "translation-router-2")
     
@@ -121,7 +124,7 @@ def analyze_version_performance(router_id, version_id):
 </AccordionGroup>
 ## Viewing Available Versions
 To see all versions of your router:
-```python
+```python router_manager.py
 def list_router_versions(router_id):
     """List all versions of a specific router."""
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
@@ -138,15 +141,18 @@ def list_router_versions(router_id):
 list_router_versions(router_id)
 ```
 ## Best Practices
+
+Let's create a new file for monitoring performance called `monitor.py`
+
 1. Monitor version performance:
-   ```python
+   ```python monitor.py
    def monitor_version(router_id, version_id):
        url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
        response = requests.get(url, headers=HEADERS)
        return response.json()
    ```
 2. Compare versions before upgrading:
-   ```python
+   ```python monitor.py
    def compare_versions(router_id, version_1, version_2):
        """Compare performance between two versions."""
        v1 = monitor_version(router_id, version_1)
@@ -161,7 +167,7 @@ list_router_versions(router_id)
        print(f"Average Cost: ${v2['average_cost']:.4f}")
    ```
 3. Track version history in your application:
-   ```python
+   ```python config.py
    current_version = "v1"  # Store this in your config
    
    def get_translation_router():

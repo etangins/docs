@@ -26,76 +26,62 @@ If you want to always use the latest version of the router, you can simply speci
 </CardGroup>
 ## Managing Versions
 
-Let's create a new file called `router_versions.py` and add the following code blocks to it to use router versioning functionality
+Let's create a new file called `list_router_vversions.py` and add the following code block to it to list router versions
 
 <Steps>
   <Step title="List Router Versions">
-    ```python router_versions.py
+    ```python list_router_versions.py
+    from config import API_URL, ORG_ID, HEADERS
+    import requests
+    
+    router_id = input("Enter router ID: ")
+    
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
     response = requests.get(url, headers=HEADERS)
-    versions = response.json()['versions']
-    
-    for version in versions:
-        print(f"Version ID: {version['version_id']}")
-        print(f"Created: {version['created_at']}")
-        print(f"Slug: {version['slug']}\n")
+    print(response.json())
     ```
   </Step>
+
+  Now let's create a file called `get_version_details.py` and add the following code block to it to get version details of a router
   <Step title="Get Version Details">
-    ```python router_versions.py
-    version_id = versions[0]['version_id']  # Get latest version
+    ```python get_version_details.py
+    from config import API_URL, ORG_ID, HEADERS
+    import requests
+    
+    router_id = input("Enter router ID: ")
+    version_id = input("Enter version ID: ")
+    
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
     response = requests.get(url, headers=HEADERS)
     details = response.json()
-    
-    # Access cost-quality points
-    for point in details['cost_quality_points']:
-        print(f"Cost: ${point['cost']:.4f}")
-        print(f"Quality: {point['quality']:.2f}")
+    print(details)
     ```
   </Step>
-  <Step title="Choose Router Version">
-    ```python basic_translator.py
-    def translate(text, router_name="translation-router"):
-        """
-        Translate using either latest version (translation-router) 
-        or specific version (translation-router-1, translation-router-2, etc.)
-        """
-        response = client.chat.completions.create(
-            model=router_name,  # Use base name for latest, or specific version name
-            messages=[
-                {"role": "system", "content": "You are a skilled Korean-English translator."},
-                {"role": "user", "content": text}
-            ]
-        )
-        return response.choices[0].message.content.strip()
-    # Use latest version
-    result = translate("안녕하세요")  # Uses translation-router
+  <Step title="Get router details">
+
+  Now let's create a file called `view_router.py` and add the following code block to it to get router details of a router.
+    ```python view_router.py
+    from config import API_URL, ORG_ID, HEADERS
+    import requests
     
-    # Use specific version
-    result = translate("안녕하세요", router_name="translation-router-1")  # Uses version 1
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    
+    def get_router_details(router_id: str):
+        """Retrieve details about a specific translation router."""
+        url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}'
+        response = requests.get(url, headers=HEADERS)
+        return response.json()
+    
+    router_id = input("Enter router ID: ")
+    details = get_router_details(router_id)
+    print(f"Name: {details['name']}")
+    print(f"Description: {details['description']}")
+    print(f"Judge ID: {details['judge_id']}")
+    print(f"Baseline Model: {details['baseline_model']}")
+    print(f"Created at: {details['created_at']}")
     ```
   </Step>
 </Steps>
-## Cost-Quality Points
-Each router version maintains a set of cost-quality points that show the router's performance curve:
-```python router_versions.py
-def analyze_version_performance(router_id, version_id):
-    """Analyze cost-quality tradeoffs for a version."""
-    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
-    response = requests.get(url, headers=HEADERS)
-    details = response.json()
-    
-    points = details['cost_quality_points']
-    points.sort(key=lambda x: x['cost'])
-    
-    print("Cost-Quality Analysis:")
-    print("----------------------")
-    for point in points:
-        print(f"Cost: ${point['cost']:.4f}")
-        print(f"Quality: {point['quality']:.2f}")
-        print()
-```
 ## Version Selection
 <AccordionGroup>
   <Accordion title="Using Latest Version">
@@ -122,58 +108,6 @@ def analyze_version_performance(router_id, version_id):
     ```
   </Accordion>
 </AccordionGroup>
-## Viewing Available Versions
-To see all versions of your router:
-```python router_versions.py
-def list_router_versions(router_id):
-    """List all versions of a specific router."""
-    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
-    response = requests.get(url, headers=HEADERS)
-    versions = response.json()['versions']
-    
-    print("Available Router Versions:")
-    for version in versions:
-        print(f"- Name: translation-router-{version['version_id']}")
-        print(f"  Created: {version['created_at']}")
-        print(f"  Hash: {version['hash']}")
-        print(f"  Judge Version: {version['judge_version_id']}\n")
-# Example usage
-list_router_versions(router_id)
-```
-## Best Practices
-
-Let's create a new file for monitoring performance called `monitor.py`
-
-1. Monitor version performance:
-   ```python monitor.py
-   def monitor_version(router_id, version_id):
-       url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
-       response = requests.get(url, headers=HEADERS)
-       return response.json()
-   ```
-2. Compare versions before upgrading:
-   ```python monitor.py
-   def compare_versions(router_id, version_1, version_2):
-       """Compare performance between two versions."""
-       v1 = monitor_version(router_id, version_1)
-       v2 = monitor_version(router_id, version_2)
-       
-       print(f"Version {version_1}:")
-       print(f"Average Quality: {v1['average_quality']:.2f}")
-       print(f"Average Cost: ${v1['average_cost']:.4f}\n")
-       
-       print(f"Version {version_2}:")
-       print(f"Average Quality: {v2['average_quality']:.2f}")
-       print(f"Average Cost: ${v2['average_cost']:.4f}")
-   ```
-3. Track version history in your application:
-   ```python config.py
-   current_version = "v1"  # Store this in your config
-   
-   def get_translation_router():
-       """Get router with current version."""
-       return f"translation-router@{current_version}"
-   ```
 <Note>
   New versions are created automatically as your router learns. Monitor performance metrics to decide when to upgrade.
 </Note>

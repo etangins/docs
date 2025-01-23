@@ -28,11 +28,9 @@ or
 a `string` representing `a model which should cost similar to run the request as the router costs`
 
 ## Using the Cost Parameter
-Add a cost constraint to your router requests:
+Because the router must take in either a cost or quality parameter, the cost parameter was previously set. Let's modify it.
 
-Let's start by creating a new file called `cost.py`
-
-```python cost.py
+```python app.py
 def translate(text, cost):    
     response = router.completions.create(
         model="translation-router",
@@ -42,13 +40,13 @@ def translate(text, cost):
         ],
         extra_body={
           "cost": cost # Target cost for this request
-        },
+        }
     )
     return response.choices[0].message.content.strip()
 
-# The following result will be sent to the best performing model that costs 5 cents or less
+# The following result will be sent to the best performing model with an expected cost equal or below 5 cents or less
 result = translate("안녕하세요", cost=0.05)
-# The following result will be sent to the best performing model that costs as much or less than gpt-4o-mini
+# The following result will be sent to the best performing model with an expected cost equal or below gpt-4o-mini price
 result = translate("이름이 뭐에요", cost="gpt-4o-mini")
 ```
 

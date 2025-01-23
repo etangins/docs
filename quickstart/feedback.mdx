@@ -18,125 +18,66 @@ The system improves through:
   </Card>
 </CardGroup>
 
-## Implementation
-Add feedback functionality to your translator:
+## Add feedback
+To provide direct judgements, let's create a new file `add_feedback.py`:
 
-````python basic_translator.py
-from config import client, API_URL, ORG_ID, HEADERS
+```python add_feedback.py
+from config import API_URL, ORG_ID, HEADERS
 import requests
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 
-def translate(text: str, router_name: str = "translation-router") -> str:
-    """Translate text between Korean and English with automatic model selection."""
-    response = client.chat.completions.create(
-        model=router_name,
-        messages=[
-            {"role": "system", "content": "You are a skilled Korean-English translator."},
-            {"role": "user", "content": text}
+router_id = input("Enter router ID: ")
+version_id = input("Enter version ID: ")
+request_response_id = input("Enter request response ID: ")
+
+# Add judgement
+url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request_response_id': request_response_id, 
+    'judgement': {
+        'score': 3,
+        'rationale': 'The translation was accurate and preserved the meaning of the original text.'
+    }
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+judgement_id = response.json()['judgement_id']
+print(f"Added judgement with ID: {judgement_id}")
+```
+
+## Add request response pairs
+To add request/response pairs, let's create a new file `add_request_and_response.py`:
+
+```python add_request_and_response.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+router_id = input("Enter router ID: ")
+version_id = input("Enter version ID: ")
+
+url = f'{API_URL}/org/{ORG_ID)}/routers/{router_id}/versions/{version_id}/response'
+
+data = {
+    'request': {
+        'messages': [
+            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {"role": "user", "content": "<translate>Tell me a joke?</translate>"}
         ]
-    )
-    return response.choices[0].message.content.strip()
+    },
+    'response': quality_response  # Use result from previous step
+}
 
-def provide_direct_feedback(
-    text: str,
-    translation: str,
-    score: float,
-    rationale: str
-) -> str:
-    """
-    Provide immediate feedback on translation quality.
-    
-    Args:
-        text: Original text to translate
-        translation: The translation to evaluate
-        score: Quality score (0-1)
-        rationale: Explanation of the score
-    
-    Returns:
-        judgement_id: Unique identifier for the feedback
-    """
-    url = f"{API_URL}/org/{ORG_ID}/judgement"
-    
-    feedback_data = {
-        'request': {
-            'messages': [
-                {'role': 'user', 'content': text}
-            ]
-        },
-        'response': {
-            'choices': [{
-                'message': {
-                    'content': translation
-                }
-            }]
-        },
-        'score': score,
-        'rationale': rationale
-    }
-    
-    response = requests.post(url, headers=HEADERS, json=feedback_data)
-    return response.json()['judgement_id']
-
-def store_translation_pair(
-    text: str,
-    translation: str,
-    router_id: Optional[str] = None,
-    version_id: Optional[str] = None
-) -> str:
-    """
-    Store a request/response pair for future analysis.
-    
-    Args:
-        text: Original text
-        translation: Generated translation
-        router_id: Optional router identifier
-        version_id: Optional version identifier
-    
-    Returns:
-        request_response_id: Unique identifier for the stored pair
-    """
-    url = f"{API_URL}/org/{ORG_ID}/response"
-    if router_id and version_id:
-        url = f"{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response"
-    
-    data = {
-        'request': {
-            'messages': [
-                {'role': 'user', 'content': text}
-            ]
-        },
-        'response': {
-            'choices': [{
-                'message': {
-                    'content': translation
-                }
-            }]
-        }
-    }
-    
-    response = requests.post(url, headers=HEADERS, json=data)
-    return response.json()['request_response_id']
-
-# Example usage
-if __name__ == "__main__":
-    # Translate text
-    text = "안녕하세요"
-    translation = translate(text)
-    
-    # Provide direct feedback
-    judgement_id = provide_direct_feedback(
-        text=text,
-        translation=translation,
-        score=0.95,
-        rationale="Accurate and natural translation"
-    )
-    print(f"Recorded feedback with ID: {judgement_id}")
-    
-    # Store for later analysis
-    pair_id = store_translation_pair(text, translation)
-    print(f"Stored translation pair with ID: {pair_id}")
-````
+response = requests.post(url, headers=HEADERS, json=data)
+request_response_id = response.json()['request_response_id']
+print(f"\nStored response with ID: {request_response_id}")
+```
 
 ## Understanding Response Formats
 

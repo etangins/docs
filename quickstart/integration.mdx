@@ -5,13 +5,15 @@ description: 'Add a Martian router to your application in minutes'
 
 Adding a Martian router to your application is as simple as changing a single parameter. Let's see how to modify our translation app to use intelligent model selection.
 
+Let's create a new file called `create_router.py`
+
 ## Create Your First Router
 
 First, create a router (this only needs to be done once):
 
 <Steps>
   <Step title="Initialize Router Creation">
-    ```python
+    ```python create_router.py
     from config import API_URL, ORG_ID, HEADERS
     import requests
 
@@ -20,7 +22,7 @@ First, create a router (this only needs to be done once):
   </Step>
 
   <Step title="Define Router Parameters">
-    ```python
+    ```python create_router.py
     data = {
         'name': 'translation-router',
         'description': 'Routes Korean-English translation requests based on quality needs',
@@ -30,7 +32,7 @@ First, create a router (this only needs to be done once):
   </Step>
 
   <Step title="Create Router">
-    ```python
+    ```python create_router.py
     response = requests.post(url, headers=HEADERS, json=data)
     router_id = response.json()['router_id']
     print(f"Created translation router with ID: {router_id}")
@@ -63,7 +65,7 @@ print(f"Created at: {details['created_at']}")
 
 Using a router requires changing only one line of code in your existing application. Simply set your `model` parameter tequal to the router `Name` parameter assigned in the router creation step:
 
-```python
+```python app.py
 def translate(text):
     """Translate text between Korean and English with automatic model selection."""
     response = client.chat.completions.create(

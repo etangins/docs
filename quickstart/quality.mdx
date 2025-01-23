@@ -22,7 +22,7 @@ Often, users have an existing model they are using in their application and they
 
 Add a quality constraint to your router requests:
 
-```python
+```python app.py
 def translate(text, quality=None):    
     response = router.completions.create(
         model="translation-router",
@@ -32,7 +32,7 @@ def translate(text, quality=None):
         ],
         extra_body={
           "quality": quality # Expected quality. The default range is 1-5
-        },
+        }
     )
     return response.choices[0].message.content.strip()
 

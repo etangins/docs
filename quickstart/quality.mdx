@@ -30,7 +30,9 @@ def translate(text, quality=None):
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
         ],
-        quality=quality  # Minimum quality score (0-1)
+        extra_body={
+          "quality": quality # Minimum quality score (0-1)
+        },
     )
     return response.choices[0].message.content.strip()
 

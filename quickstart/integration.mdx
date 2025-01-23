@@ -27,8 +27,7 @@ data = {
 
 # Create Router
 response = requests.post(url, headers=HEADERS, json=data)
-router_id = response.json()['router_id']
-print(f"Created translation router with ID: {router_id}")
+print(response.json())
 ```
 
 It's important to set the baseline to the existing model you are using to generate the maximum quality improvement and cost reduction achievable. You will be able to showcase your performance improvement to others later on.

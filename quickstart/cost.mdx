@@ -1,6 +1,6 @@
 ---
-title: 'Cost Optimization'
-description: 'Optimize your LLM costs while maintaining quality'
+title: 'Routing with a cost constraint'
+description: 'Maximize quality for a given expected cost value'
 ---
 
 Routing allows you to sit on the pareto frontier of performance. In other words, by routing, you can get the maximum possible performance at any level of cost. However, the pareto frontier is a curve which means there are many possible points for you to pick. We make it easy to pick the best point for your budget and business needs.
@@ -21,11 +21,11 @@ Althought it is slightly counterintuitive, a user who cares about reducing cost 
 Right away, even with no training data and no judge, Martian can determine what model falls within your cost budget. Cost can be specified in two ways
 
 Either it can be a 
-`float` representing a `maximum cost of the request in dollars` 
+`float` representing the `target cost of the request in dollars` 
 
 or 
 
-a `string` representing the `maximum cost of the request being no higher than what that model would have cost`
+a `string` representing `a model which should cost similar to run the request as the router costs`
 
 ## Using the Cost Parameter
 Add a cost constraint to your router requests:
@@ -41,7 +41,7 @@ def translate(text, cost):
             {"role": "user", "content": text}
         ],
         extra_body={
-          "cost": cost # Maximum cost for this request
+          "cost": cost # Target cost for this request
         },
     )
     return response.choices[0].message.content.strip()
@@ -53,7 +53,7 @@ result = translate("이름이 뭐에요", cost="gpt-4o-mini")
 ```
 
 ## Demonstrating Cost Savings
-In this example, we will pretend each request uses roughly the same number of tokens, and we will treat the cost parameter as your maximum per-request budget (in dollars). In reality, token usage and model pricing can vary.
+In this example, we will pretend each request uses roughly the same number of tokens and we will assign rough estimates to the level of cost per model. In reality, token usage and model pricing can vary.
 
 ```python cost.py
 def demonstrate_cost_savings():
@@ -65,15 +65,15 @@ def demonstrate_cost_savings():
 
     # Example tasks: (Korean text, desired max per-request cost)
     tasks = [
-        ("안녕하세요!", 0.003),  # Simple greeting
-        ("감사합니다. 주문이 확인되었습니다.", 0.02),  # Email response
-        ("서버 구성 방법을 설명해 드리겠습니다.", 0.05),  # Technical doc
-        ("본 계약은 법적 구속력이 있습니다.", 0.10),  # Legal content
+        ("안녕하세요!", 0.00003),  # Simple greeting
+        ("감사합니다. 주문이 확인되었습니다.", 0.0002),  # Email response
+        ("서버 구성 방법을 설명해 드리겠습니다.", 0.0005),  # Technical doc
+        ("본 계약은 법적 구속력이 있습니다.", 0.001),  # Legal content
     ]
 
-    # Suppose if we always used a premium model (like GPT-4),
-    # we assume the *average* cost might be around $0.10 per request.
-    fixed_model_cost_per_request = 0.10
+    # Suppose if we always used a premium model (like GPT-o1),
+    # we assume the *average* cost might be around $0.001 per request.
+    fixed_model_cost_per_request = 0.001
 
     results = []
     total_routed_cost = 0.0

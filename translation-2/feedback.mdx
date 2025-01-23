@@ -94,14 +94,21 @@ url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers
 data = {
     'request': {
         'messages': [
-            {'role': 'user', 'content': 'Translate "goodbye" to French'}
+        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {'role': 'user', 'content': '<translate>goodbye</translate>'}
         ]
     },
     'response': {
         'choices': [{
             'message': {
                 'role': 'assistant',
-                'content': 'Au revoir'
+                'content': '안녕히 가세요'
             }
         }]
     }

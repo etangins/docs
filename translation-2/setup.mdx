@@ -1,0 +1,61 @@
+---
+title: 'Setup'
+description: 'Set up your environment for using Martian'
+---
+
+Let's add Martian to your application. This involves a simple installation and changing only a few lines of code.
+
+## Installation
+
+```bash
+pip install martian-routing python-dotenv
+```
+
+## Configuration
+Create a `.env` file with your Martian API key:
+
+```env
+MARTIAN_API_KEY=your_api_key_here
+```
+
+## Test Your Setup
+Create a `test_setup.py` file to verify your configuration:
+
+```python test_setup.py
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure client with Martian
+client = OpenAI(
+    api_key=os.getenv("MARTIAN_API_KEY"),
+    base_url="https://api.withmartian.com/v1/completions"
+)
+
+def translate(text):
+    """Translate text between Korean and English."""
+    response = client.chat.completions.create(
+        model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
+        messages=[
+            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {"role": "user", "content": text}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+# Test the setup
+if __name__ == "__main__":
+    result = translate("Hello, how are you?")
+    print(f"\nTranslation: {result}")
+```
+
+That's it! With these simple changes, you're now ready to use Martian. In the next sections, we'll explore how to optimize your application using Martian's routing capabilities.

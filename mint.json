@@ -35,6 +35,14 @@
   ],
   "navigation": [
     {
+      "group": "Translation New Quickstart",
+      "pages": [
+        "translation-2/introduction",
+        "translation/application",
+        "translation/setup"
+      ]
+    },
+    {
       "group": "Translation Quickstart",
       "pages": [
         "translation/introduction",

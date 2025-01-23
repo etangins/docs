@@ -8,24 +8,54 @@ Adding a Martian router to your application is as simple as changing a single pa
 ## Create Your First Router
 First, create a router (this only needs to be done once):
 
-```python
-from martian import Router
+<Steps>
+  <Step title="Initialize Router Creation">
+    ```python
+    from config import API_URL, ORG_ID, HEADERS
+    import requests
 
-# Create a router
-router = Router.create(
-    name="translation-router",
-    description="Routes translation requests to optimal models"
-    baseline="gpt-4o"
-)
-
-# Save this router ID for your application
-print(f"Created router with ID: {router.id}")
-```
+    url = f'{API_URL}/org/{ORG_ID}/routers'
+    ```
+  </Step>
+  <Step title="Define Router Parameters">
+    ```python
+    data = {
+        'name': 'korean-english-router',
+        'description': 'Routes Korean-English translation requests based on quality needs',
+        'baseline_model': 'gpt-4o-mini'  # The model you currently use for the application
+    }
+    ```
+  </Step>
+  <Step title="Create Router">
+    ```python
+    response = requests.post(url, headers=HEADERS, json=data)
+    router_id = response.json()['router_id']
+    print(f"Created translation router with ID: {router_id}")
+    ```
+  </Step>
+</Steps>
 
 It's important to set the baseline to the existing model you are using to generate the maximum quality improvement and cost reduction achievable. You will be able to showcase your performance improvement to others later on.
 
+## Verifying Router Creation
+After creating a router, verify its details:
+```python
+def get_router_details(router_id: str):
+    """Retrieve details about a specific translation router."""
+    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}'
+    response = requests.get(url, headers=HEADERS)
+    return response.json()
+
+details = get_router_details(router_id)
+print(f"Name: {details['name']}")
+print(f"Description: {details['description']}")
+print(f"Judge ID: {details['judge_id']}")
+print(f"Baseline Model: {details['baseline_model']}")
+print(f"Created at: {details['created_at']}")
+```
+
 ## Use the Router
-Simply update your model parameter to use the router:
+Using a router requires changing only one line of code in your existing application. Simply set your `model` parameter tequal to the router `Name` parameter assigned in the router creation step:
 
 ```python
 def translate(text):
@@ -48,6 +78,28 @@ That's it! Your application now has intelligent model selection. The router will
 - Select appropriate models for each request
 - Optimize for both cost and quality
 - Improve its selections over time based on feedback
+
+## Common Issues
+<AccordionGroup>
+  <Accordion title="Invalid Judge ID">
+    Ensure the judge_id exists and is configured for the correct language pair.
+  </Accordion>
+  <Accordion title="Invalid Baseline Model">
+    Use only supported model names for the baseline_model parameter.
+  </Accordion>
+  <Accordion title="Duplicate Names">
+    Router names must be unique. Consider names like:
+    - `ko-en-business-router`
+    - `ko-en-technical-router`
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+Now that you've created a translation router, you can:
+1. Test routing with different constraints
+2. Monitor translation quality
+3. Store and analyze translations
+4. Add quality judgements for optimization
 
 <Note>
   You don't need to set up a judge or provide feedback to start using a router. Those features can be added later to further optimize performance.

@@ -22,7 +22,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def translate(text):
     """Translate text between Korean and English."""
     response = client.chat.completions.create(
-        model="gpt-4",  # Fixed model for all translations
+        model="gpt-4o-mini",  # Fixed model for all translations
         messages=[
             {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
                 - Identify if the input is Korean or English
@@ -51,11 +51,23 @@ This basic implementation works but has some drawbacks:
 
 <CardGroup cols={2}>
   <Card title="Fixed Model" icon="lock">
-    Uses the same model regardless of the translation complexity
+    Always uses GPT-4o-Mini, even for simple translations
   </Card>
   <Card title="Cost Inefficient" icon="money-bill">
-    May use an expensive model for simple translations
+    No way to optimize for cost vs quality
+  </Card>
+  <Card title="No Quality Metrics" icon="chart-line">
+    Can't track or improve translation quality
+  </Card>
+  <Card title="No Feedback Loop" icon="rotate">
+    Doesn't learn from past translations
   </Card>
 </CardGroup>
 
-Let's see how we can optimize this application with Martian...
+In the following sections, we'll modify this application to use Martian's router system, which will help us:
+- Route requests to appropriate models based on needs
+- Optimize for cost and quality
+- Collect and use quality feedback
+- Monitor and improve translation performance
+
+Let's get started by setting up our Martian environment...

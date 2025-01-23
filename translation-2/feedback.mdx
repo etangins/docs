@@ -3,99 +3,137 @@ title: 'Providing Feedback'
 description: 'Help your router learn and improve automatically'
 ---
 
-Feedback helps your router learn which models perform best for different types of content. Let's see how to provide feedback and how it drives automatic improvements.
+## Concepts
 
-## Storing Translation Results
-First, store translation results for feedback:
+The system improves through:
 
-```python
-def store_translation(router, text, translation):
-    """Store a translation for later feedback."""
-    response = router.store(
-        messages=[
-            {"role": "user", "content": text}
-        ],
-        completion={
-            "role": "assistant",
-            "content": translation
-        }
-    )
-    return response.request_id
+<CardGroup cols={2}>
+  <Card title="Request/Response Storage" icon="database">
+    - Builds interaction history
+    - Provides training data
+    - Enables performance analysis
+  </Card>
+  <Card title="Judgements" icon="star">
+    - Measure response quality
+    - Guide future routing decisions
+    - Help identify optimal models
+  </Card>
+</CardGroup>
 
-# Store some translations
-router = Router(router_id="your_router_id")
-request_id = store_translation(
-    router,
-    "안녕하세요",
-    "Hello"
-)
-```
+## Storing Request/Response Pairs
 
-## Adding Quality Feedback
-Provide feedback about translation quality:
+Store a request/response pair:
 
 ```python
-def add_feedback(router, request_id, quality_score):
-    """Rate translation quality from 0 to 1."""
-    router.add_feedback(
-        request_id=request_id,
-        score=quality_score  # 0 = poor, 1 = perfect
-    )
+# Store response
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/response'
 
-# Add feedback for stored translation
-add_feedback(router, request_id, quality_score=0.95)
-```
+data = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "hello" to French'}
+        ]
+    },
+    'response': quality_result  # Use result from previous step
+}
 
-## Direct Feedback
-You can also provide feedback immediately after a translation:
-
-```python
-# Translate and provide feedback in one flow
-def translate_with_feedback(text, expected_quality):
-    router = Router(router_id="your_router_id")
-    
-    # Get translation
-    response = router.completions.create(
-        messages=[
-            {"role": "system", "content": "You are a skilled Korean-English translator."},
-            {"role": "user", "content": text}
-        ],
-        quality=expected_quality
-    )
-    translation = response.choices[0].message.content
-    
-    # Store result and add feedback
-    request_id = store_translation(router, text, translation)
-    
-    # Rate based on your quality criteria
-    quality_score = rate_translation_quality(text, translation)
-    add_feedback(router, request_id, quality_score)
-    
-    return translation
-
-def rate_translation_quality(source, translation):
-    """Your custom logic to rate translation quality."""
-    # Implement your quality rating logic
-    return 0.9  # Example score
-```
-
-## Automatic Improvements
-As you provide feedback, Martian automatically:
-1. Learns from your quality ratings
-2. Improves model selection
-3. Creates new router versions
-4. Updates quality predictions
-
-Your router will automatically use these improvements when you specify `version="latest"`:
-
-```python
-# Always use latest improved version
-router = Router(
-    router_id="your_router_id",
-    version="latest"  # Automatically use improvements
-)
+response = requests.post(url, headers=headers, json=data)
+request_response_id = response.json()['request_response_id']
+print(f"\nStored response with ID: {request_response_id}")
 ```
 
 <Note>
-  Consistent feedback helps your router learn your specific quality requirements and optimize model selection accordingly. The more feedback you provide, the better the router becomes at selecting the right model for each request.
+The response parameter can use the result from a previous router request, or you can provide a new response object.
+</Note>
+
+### Expected Response Format
+
+```json
+{
+    "request_response_id": "req_resp_abc123..."
+}
+```
+
+## Adding Judgements
+
+Add a judgement using the stored request/response ID:
+
+```python
+# Add judgement
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request_response_id': request_response_id
+}
+
+response = requests.post(url, headers=headers, json=data)
+judgement_id = response.json()['judgement_id']
+print(f"Added judgement with ID: {judgement_id}")
+```
+
+### Alternative: Direct Judgement
+
+You can also submit a judgement with the request/response pair directly:
+
+```python
+# Add judgement using request/response pair
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request': {
+        'messages': [
+            {'role': 'user', 'content': 'Translate "goodbye" to French'}
+        ]
+    },
+    'response': {
+        'choices': [{
+            'message': {
+                'role': 'assistant',
+                'content': 'Au revoir'
+            }
+        }]
+    }
+}
+
+response = requests.post(url, headers=headers, json=data)
+direct_judgement_id = response.json()['judgement_id']
+print(f"Added direct judgement with ID: {direct_judgement_id}")
+```
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Invalid Request Format">
+    Request messages must be an array of role/content objects:
+    ```python
+    'messages': [
+        {'role': 'user', 'content': 'message'}
+    ]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Response Format">
+    Response must include choices array with messages:
+    ```python
+    'choices': [{
+        'message': {
+            'role': 'assistant',
+            'content': 'response'
+        }
+    }]
+    ```
+  </Accordion>
+  <Accordion title="Invalid Request/Response ID">
+    When using ID-based judgements, ensure the ID exists and belongs to this router version.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+After storing data and judgements, you can:
+1. Use the verification script to test all endpoints
+2. Monitor router performance
+3. Optimize routing based on feedback
+
+<Note>
+Remember to save request/response IDs for future reference and judgements.
 </Note>

@@ -112,19 +112,21 @@ Calling LLMs through Martian requires changing only a couple lines of code.
 2. Replace the base\_url parameters from the
 
 3. Specify the LLM you wish to call by changing the `model` parameter to one of hundreds of our supported models.
-   See the `basic_translator.py` example file below:
 
-```python app.py
+   See the `app.py` example file below:
+
+```diff app.py
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 # Configure client with Martian
-client = OpenAI(
-    api_key=os.getenv("MARTIAN_API_KEY"),
-    base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
-)
+- client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
++ client = OpenAI(
++     api_key=os.getenv("MARTIAN_API_KEY"),
++     base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
++ )
 def translate(text):
     """Translate text between Korean and English."""
     response = client.chat.completions.create(

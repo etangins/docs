@@ -1,0 +1,71 @@
+---
+title: 'Cost Optimization'
+description: 'Optimize your LLM costs while maintaining quality'
+---
+
+The cost parameter lets you control spending while Martian automatically selects the best model within your budget. Let's explore how to use it effectively.
+
+## Using the Cost Parameter
+Add a cost constraint to your router requests:
+
+```python
+def translate(text, cost):
+    router = Router(router_id="your_router_id")
+    
+    response = router.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a skilled Korean-English translator."},
+            {"role": "user", "content": text}
+        ],
+        cost=cost  # Maximum cost for this request
+    )
+    return response.choices[0].message.content.strip()
+
+# Example with cost constraint
+result = translate("안녕하세요", cost=0.05)
+```
+
+## Demonstrating Cost Savings
+Here's how to optimize costs for different types of content:
+
+```python
+# Track costs and quality for different content types
+translations = {
+    "Simple greeting": translate("Hi there!", cost=0.001),
+    "Email response": translate("감사합니다. 주문이 확인되었습니다.", cost=0.03),
+    "Technical doc": translate("서버 구성 방법을 설명해 드리겠습니다.", cost=0.08),
+    "Legal content": translate("본 계약은 법적 구속력이 있습니다.", cost=0.15)
+}
+
+# Compare costs with fixed-model approach
+fixed_model_cost = 0.15 * len(translations)  # If always using GPT-4
+optimized_cost = sum([0.001, 0.03, 0.08, 0.15])
+savings = fixed_model_cost - optimized_cost
+
+print(f"Cost savings: ${savings:.3f} for {len(translations)} translations")
+```
+
+## Cost Interpolation
+Martian automatically interpolates between model price points to maximize value. You can specify any cost value:
+
+```python
+from decimal import Decimal
+
+# Demonstrate cost interpolation
+examples = [
+    ("Hello!", Decimal("0.001")),                    # Uses cheapest suitable model
+    ("안녕하세요", Decimal("0.015")),                # Interpolates between models
+    ("복잡한 기술 문서입니다.", Decimal("0.075")),    # Automatically selects based on complexity
+    ("법률 계약서:", Decimal("0.15"))                # Uses premium model for critical content
+]
+
+for text, cost in examples:
+    result = translate(text, cost=cost)
+    print(f"\nInput: {text}")
+    print(f"Cost limit: ${cost}")
+    print(f"Translation: {result}")
+```
+
+<Note>
+  The cost parameter can be any value - you're not limited to specific model price points. Martian will automatically select or interpolate between models to maximize value within your budget.
+</Note>

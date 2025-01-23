@@ -18,8 +18,14 @@ Create a `.env` file with your Martian API key:
 MARTIAN_API_KEY=your_api_key_here
 ```
 
-## Test Your Setup
-Create a `test_setup.py` file to verify your configuration:
+## Call LLMs through Martian and Test Your Setup
+Calling LLMs through Martian requires changing only a couple lines of code.
+
+1. Replace the OpenAI api_key parameter
+2. Replace the base_url parameters from the
+3. Specify the LLM you wish to call by changing the `model` parameter to one of hundreds of our supported models.
+
+See the `basic_translator.py` example file below:
 
 ```python test_setup.py
 from openai import OpenAI

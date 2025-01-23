@@ -1,0 +1,52 @@
+---
+title: 'Easy Integration'
+description: 'Add a Martian router to your application in minutes'
+---
+
+Adding a Martian router to your application is simple and provides immediate benefits. Let's modify our translation app to use intelligent model selection.
+
+## Create Your First Router
+Creating a router takes just a few lines of code:
+
+```python
+from martian import Router
+
+# Create a router - only needs to be done once
+router = Router.create(
+    name="translation-router",
+    description="Routes translation requests to optimal models"
+)
+
+# Save this ID for future use
+print(f"Created router with ID: {router.id}")
+```
+
+## Use the Router
+Update your translation function to use the router:
+
+```python
+def translate(text):
+    """Translate text between Korean and English with automatic model selection."""
+    router = Router(router_id="your_router_id")
+    
+    response = router.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a skilled Korean-English translator."},
+            {"role": "user", "content": text}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+# Example usage
+result = translate("안녕하세요")
+print(f"Translation: {result}")
+```
+
+That's it! Your application now has intelligent model selection. The router will automatically:
+- Select appropriate models for each request
+- Optimize for both cost and quality
+- Improve its selections over time based on feedback
+
+<Note>
+  You don't need to set up a judge or provide feedback to start using a router. Those features can be added later to further optimize performance.
+</Note>

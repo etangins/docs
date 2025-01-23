@@ -1,0 +1,52 @@
+---
+title: 'Quality Optimization'
+description: 'Use quality constraints and feedback to improve translations'
+---
+
+While cost optimization provides immediate benefits, you can further improve your router's performance using quality constraints and feedback.
+
+## Using Quality Constraints
+Instead of specifying a cost, you can request a minimum quality level:
+
+```python
+def translate(text, quality=None):
+    router = Router(router_id="your_router_id")
+    
+    response = router.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a skilled Korean-English translator."},
+            {"role": "user", "content": text}
+        ],
+        quality=quality  # Minimum quality score (0-1)
+    )
+    return response.choices[0].message.content.strip()
+
+# Request high-quality translation
+result = translate("법적 문서입니다.", quality=0.9)
+```
+
+## Quality Scores and Feedback
+The quality parameter becomes more powerful as you provide feedback. When you tell Martian about translation quality, it learns to:
+- Predict which models perform best for different content types
+- Select models that consistently meet your quality requirements
+- Balance quality and cost effectively
+
+```python
+# Example showing quality-based routing
+translations = [
+    translate("안녕하세요", quality=0.7),          # Casual conversation
+    translate("제품 설명서입니다.", quality=0.8),    # Product documentation
+    translate("계약서 내용입니다.", quality=0.95)    # Legal content
+]
+```
+
+## Automatic Improvement
+As you provide feedback (covered in the next section), your router automatically:
+- Learns from translation quality ratings
+- Improves model selection accuracy
+- Creates new versions with better performance
+- Updates its quality predictions
+
+<Note>
+  While you can use quality constraints immediately, they become more effective as you provide feedback about translation quality. The router uses this feedback to continuously improve its model selection.
+</Note>

@@ -1,0 +1,43 @@
+---
+title: 'Using Versions'
+description: 'Understand how router versions work'
+---
+
+As you provide feedback, Martian automatically creates new versions of your router with improved performance. Here's how to work with versions effectively.
+
+## Using the Latest Version
+By default, you'll want to use the latest version to get the best performance:
+
+```python
+router = Router(
+    router_id="your_router_id",
+    version="latest"  # Always use most recent improvements
+)
+```
+
+## Viewing Available Versions
+You can see all versions of your router:
+
+```python
+router = Router(router_id="your_router_id")
+versions = router.list_versions()
+
+for version in versions:
+    print(f"Version ID: {version.id}")
+    print(f"Created: {version.created_at}")
+```
+
+## Using Specific Versions
+For production environments, you might want to use a specific version:
+
+```python
+# Use a specific version
+router = Router(
+    router_id="your_router_id",
+    version="version_id"  # Lock to specific version
+)
+```
+
+<Note>
+  In most cases, using `version="latest"` is recommended as it automatically incorporates improvements from your feedback. Use specific versions when you need consistent behavior in production.
+</Note>

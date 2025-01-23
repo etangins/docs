@@ -1,0 +1,43 @@
+---
+title: 'Advanced Optimization: Judges'
+description: 'Enhance router performance with custom quality metrics'
+---
+
+While routers work well with basic feedback, you can further optimize performance by creating a judge that defines specific quality criteria for your use case.
+
+## What is a Judge?
+A judge helps your router understand what "good" means for your specific application. For translation, this might include:
+- Translation accuracy
+- Grammar correctness
+- Tone preservation
+- Technical terminology usage
+
+## Creating a Judge
+Create a judge to define your quality criteria:
+
+```python
+from martian import Judge
+
+# Create a judge for your specific needs
+judge = Judge.create(
+    name="translation-judge",
+    description="Evaluates Korean-English translation quality"
+)
+
+# Update your router to use this judge
+router = Router.create(
+    name="translation-router",
+    description="Routes translation requests",
+    judge_id=judge.id  # Connect judge to router
+)
+```
+
+## Enhanced Performance
+With a judge, your router can:
+- Better understand your quality requirements
+- Make more accurate model selections
+- Optimize for your specific use case
+
+<Note>
+  Judges are optional but can improve router performance when you have specific quality requirements. Start with basic feedback and add a judge when you need more precise quality optimization.
+</Note>

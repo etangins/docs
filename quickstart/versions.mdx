@@ -26,11 +26,11 @@ If you want to always use the latest version of the router, you can simply speci
 </CardGroup>
 ## Managing Versions
 
-Let's create a new file called `route_manager.py` and add the following code blocks to it to use router versioning functionality
+Let's create a new file called `router_versions.py` and add the following code blocks to it to use router versioning functionality
 
 <Steps>
   <Step title="List Router Versions">
-    ```python router_manager.py
+    ```python router_versions.py
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
     response = requests.get(url, headers=HEADERS)
     versions = response.json()['versions']
@@ -42,7 +42,7 @@ Let's create a new file called `route_manager.py` and add the following code blo
     ```
   </Step>
   <Step title="Get Version Details">
-    ```python router_manager.py
+    ```python router_versions.py
     version_id = versions[0]['version_id']  # Get latest version
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
     response = requests.get(url, headers=HEADERS)
@@ -79,7 +79,7 @@ Let's create a new file called `route_manager.py` and add the following code blo
 </Steps>
 ## Cost-Quality Points
 Each router version maintains a set of cost-quality points that show the router's performance curve:
-```python basic_translator.py
+```python router_versions.py
 def analyze_version_performance(router_id, version_id):
     """Analyze cost-quality tradeoffs for a version."""
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
@@ -124,7 +124,7 @@ def analyze_version_performance(router_id, version_id):
 </AccordionGroup>
 ## Viewing Available Versions
 To see all versions of your router:
-```python router_manager.py
+```python router_versions.py
 def list_router_versions(router_id):
     """List all versions of a specific router."""
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'

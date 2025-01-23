@@ -1,6 +1,6 @@
 ---
-title: "Routing With A Cost Constraint"
-description: "Optimize your LLM costs while maintaining quality"
+title: 'Cost Optimization'
+description: 'Optimize your LLM costs while maintaining quality'
 ---
 
 Routing allows you to sit on the pareto frontier of performance. In other words, by routing, you can get the maximum possible performance at any level of cost. However, the pareto frontier is a curve which means there are many possible points for you to pick. We make it easy to pick the best point for your budget and business needs.
@@ -11,7 +11,6 @@ There are two different methods you can use to pick your point on the pareto cur
   <Card title="Cost" icon="money-bill">
     Maintain a specified budget for cost while increasing quality as much as possible within that budget.
   </Card>
-
   <Card title="Quality" icon="star">
     Maintain a specified level of quality while reducing cost as much as possible within that quality constraint.
   </Card>
@@ -21,18 +20,19 @@ Althought it is slightly counterintuitive, a user who cares about reducing cost 
 
 Right away, even with no training data and no judge, Martian can determine what model falls within your cost budget. Cost can be specified in two ways
 
-Either it can be a
-`float` representing a `maximum cost of the request in dollars`
+Either it can be a 
+`float` representing a `maximum cost of the request in dollars` 
 
-or
+or 
 
 a `string` representing the `maximum cost of the request being no higher than what that model would have cost`
 
 ## Using the Cost Parameter
-
 Add a cost constraint to your router requests:
 
-```python
+Let's start by creating a new file called `cost.py`
+
+```python cost.py
 def translate(text, cost):    
     response = router.completions.create(
         model="translation-router",
@@ -53,10 +53,9 @@ result = translate("이름이 뭐에요", cost="gpt-4o-mini")
 ```
 
 ## Demonstrating Cost Savings
-
 In this example, we will pretend each request uses roughly the same number of tokens, and we will treat the cost parameter as your maximum per-request budget (in dollars). In reality, token usage and model pricing can vary.
 
-```python
+```python cost.py
 def demonstrate_cost_savings():
     """
     1. Translates several Korean texts, each with a maximum per-request budget.

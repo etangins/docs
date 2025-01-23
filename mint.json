@@ -1,10 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Martian Quickstart",
-  "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
-  },
   "favicon": "/favicon.svg",
   "colors": {
     "primary": "#ff563f",

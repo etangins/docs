@@ -15,6 +15,13 @@ Let's start with a simple translation application. We'll first set up our enviro
     ```
   </Step>
 
+  <Step title="Clone the starter repository">
+    ```bash
+    git clone https://github.com/withmartian/routing-quickstart.git
+    cd routing-quickstart
+    ```
+  </Step>
+
   <Step title="Create Virtual Environment">
     Create and activate a virtual environment:
 
@@ -36,7 +43,7 @@ Let's start with a simple translation application. We'll first set up our enviro
   </Step>
 
   <Step title="Install Dependencies">
-    Create a requirements.txt file:
+    Confirm that your Githbub repo contains the following requirements.txt file:
 
     ```txt requirements.txt
     openai==1.59.3
@@ -52,7 +59,9 @@ Let's start with a simple translation application. We'll first set up our enviro
   </Step>
 
   <Step title="Set Up Environment Variables">
-    Create a .env file:
+    Your Github repo should contain an example.env file.
+    
+    Go ahead and create a .env file modeled after the example.env file:
 
     ```txt .env
     OPENAI_API_KEY=your_api_key_here

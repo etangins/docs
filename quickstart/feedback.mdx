@@ -25,6 +25,23 @@ The system improves through:
   </Card>
 </CardGroup>
 
+## Adding Judgements
+
+Add a judgement using the stored request/response ID:
+
+```python feedback.py
+# Add judgement
+url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
+
+data = {
+    'request_response_id': request_response_id
+}
+
+response = requests.post(url, headers=headers, json=data)
+judgement_id = response.json()['judgement_id']
+print(f"Added judgement with ID: {judgement_id}")
+```
+
 ## Storing Request/Response Pairs
 
 Store a request/response pair:
@@ -66,23 +83,6 @@ print(f"\nStored response with ID: {request_response_id}")
 {
     "request_response_id": "req_resp_abc123..."
 }
-```
-
-## Adding Judgements
-
-Add a judgement using the stored request/response ID:
-
-```python feedback.py
-# Add judgement
-url = f'{os.getenv("MARTIAN_API_URL")}/org/{os.getenv("MARTIAN_ORG_ID")}/routers/{router_id}/versions/{version_id}/judgement'
-
-data = {
-    'request_response_id': request_response_id
-}
-
-response = requests.post(url, headers=headers, json=data)
-judgement_id = response.json()['judgement_id']
-print(f"Added judgement with ID: {judgement_id}")
 ```
 
 ### Alternative: Direct Judgement

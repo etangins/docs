@@ -130,7 +130,8 @@ load_dotenv()
 def translate(text):
     """Translate text between Korean and English."""
     response = client.chat.completions.create(
-        model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
+-         model="gpt-4o-mini",  # Fixed model for all translations
++         model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
         messages=[
             {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
                 - Identify if the input is Korean or English

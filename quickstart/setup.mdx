@@ -6,7 +6,7 @@ Let's add Martian to your application. This involves a simple installation and c
 ## Get Your API Key
 <Steps>
   <Step title="Sign In">
-    Go to [withmartian.com/workbench](https://withmartian.com/workbench)
+    Go to [develop.withmartian.com/workbench](https://develop.withmartian.com/workbench)
   </Step>
   <Step title="Access Settings">
     Click on the user profile icon in the top right corner
@@ -69,12 +69,16 @@ Before you begin, ensure you have:
     ```
   </Step>
   <Step title="Configure Environment">
-    Create a `.env` file:
-    ```env .env
-    MARTIAN_API_URL=https://withmartian.com/api
-    MARTIAN_API_KEY=your_api_key_here
-    MARTIAN_ORG_ID=your_org_id_here
+    Update the previously created `.env` file:
+    ```diff
+    - MARTIAN_API_URL=your_api_url_here
+    - MARTIAN_API_KEY=your_api_key_here
+    - MARTIAN_ORG_ID=your_org_id_here
+    + MARTIAN_API_URL=https://api.martian.ai
+    + MARTIAN_API_KEY=mt-prod-xxxxxxxxxxxxxxxxxxxx
+    + MARTIAN_ORG_ID=org_xxxxxxxxxxxxxxxxxxxx
     ```
+
     Create `config.py` to load environment variables:
     ```python config.py
     from dotenv import load_dotenv

@@ -6,6 +6,7 @@ description: 'Start with a basic LLM application'
 Let's start with a simple translation application. We'll then show how easy it is to optimize it using Martian's routing system.
 
 ## Basic Translation App
+
 Here's our starting application:
 
 ```python basic_translator.py
@@ -47,27 +48,35 @@ if __name__ == "__main__":
 ```
 
 ## Current Limitations from Using OpenAI Instead of Martian
+
 This basic implementation works but has some drawbacks:
 
 <CardGroup cols={2}>
   <Card title="Fixed Model" icon="lock">
-    Always uses GPT-4o-Mini, even for simple translations
+    Always uses GPT-4o-Mini, even for complex translations
   </Card>
+
   <Card title="Cost Inefficient" icon="money-bill">
     No way to optimize for cost vs quality
   </Card>
+
   <Card title="No Quality Metrics" icon="chart-line">
     Can't track or improve translation quality
   </Card>
+
   <Card title="No Feedback Loop" icon="rotate">
     Doesn't learn from past translations
   </Card>
 </CardGroup>
 
 In the following sections, we'll modify this application to use Martian's router system, which will help us:
-- Route requests to appropriate models based on needs
-- Optimize for cost and quality
-- Collect and use quality feedback
-- Monitor and improve translation performance
+
+* Route requests to appropriate models based on needs
+
+* Optimize for cost and quality
+
+* Collect and use quality feedback
+
+* Monitor and improve translation performance
 
 Let's get started by setting up our Martian environment...

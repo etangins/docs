@@ -20,7 +20,7 @@ url = f'{API_URL}/org/{ORG_ID}/routers'
 
 # Define Router Parameters
 data = {
-  'name': 'translation-router',
+  'name': 'translation-router', # This is the name of your router
   'description': 'Routes Korean-English translation requests based on quality needs',
   'baseline_model': 'gpt-4o-mini'  # The model you currently use for the application
 }
@@ -37,11 +37,12 @@ It's important to set the baseline to the existing model you are using to genera
 
 Using a router requires changing only one line of code in your existing application. Simply set your `model` parameter tequal to the router `Name` parameter assigned in the router creation step:
 
-```python app.py
+```diff app.py
 def translate(text):
     """Translate text between Korean and English with automatic model selection."""
     response = client.chat.completions.create(
-        model="translation-router",  # Just change this one line to the name you used when creating a router to use your router
+-         model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
++         model="translation-router",  # Just change this one line to the name you used when creating a router to use your router
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}

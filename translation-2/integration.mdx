@@ -28,7 +28,7 @@ Simply update your model parameter to use the router:
 def translate(text):
     """Translate text between Korean and English with automatic model selection."""
     response = client.chat.completions.create(
-        model="router_id",  # Just change this one line to use your router!
+        model="translation-router",  # Just change this one line to the name you used when creating a router to use your router
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}

@@ -38,8 +38,8 @@
       "group": "Translation New Quickstart",
       "pages": [
         "translation-2/introduction",
-        "translation/application",
-        "translation/setup"
+        "translation-2/application",
+        "translation-2/setup"
       ]
     },
     {

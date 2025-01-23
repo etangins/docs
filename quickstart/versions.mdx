@@ -27,7 +27,7 @@ If you want to always use the latest version of the router, you can simply speci
 ## Managing Versions
 <Steps>
   <Step title="List Router Versions">
-    ```python
+    ```python router_manager.py
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions'
     response = requests.get(url, headers=HEADERS)
     versions = response.json()['versions']

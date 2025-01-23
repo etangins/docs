@@ -9,11 +9,9 @@ Adding a Martian router to your application is as simple as changing a single pa
 
 First, create a router (this only needs to be done once):
 
-Let's start by creating a `router-manager.py` file.
-
 <Steps>
   <Step title="Initialize Router Creation">
-    ```python router_manager.py
+    ```python
     from config import API_URL, ORG_ID, HEADERS
     import requests
 
@@ -22,7 +20,7 @@ Let's start by creating a `router-manager.py` file.
   </Step>
 
   <Step title="Define Router Parameters">
-    ```python router_manager.py
+    ```python
     data = {
         'name': 'translation-router',
         'description': 'Routes Korean-English translation requests based on quality needs',
@@ -32,7 +30,7 @@ Let's start by creating a `router-manager.py` file.
   </Step>
 
   <Step title="Create Router">
-    ```python router_manager.py
+    ```python
     response = requests.post(url, headers=HEADERS, json=data)
     router_id = response.json()['router_id']
     print(f"Created translation router with ID: {router_id}")
@@ -46,7 +44,7 @@ It's important to set the baseline to the existing model you are using to genera
 
 After creating a router, verify its details:
 
-```python router_manager.py
+```python
 def get_router_details(router_id: str):
     """Retrieve details about a specific translation router."""
     url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}'
@@ -65,7 +63,7 @@ print(f"Created at: {details['created_at']}")
 
 Using a router requires changing only one line of code in your existing application. Simply set your `model` parameter tequal to the router `Name` parameter assigned in the router creation step:
 
-```python basic_translator.py
+```python
 def translate(text):
     """Translate text between Korean and English with automatic model selection."""
     response = client.chat.completions.create(
@@ -73,7 +71,10 @@ def translate(text):
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
-        ]
+        ],
+        extra_body={
+            "cost": "gpt-4o-mini"
+        }
     )
     return response.choices[0].message.content.strip()
 

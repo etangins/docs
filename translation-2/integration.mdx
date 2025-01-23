@@ -6,6 +6,7 @@ description: 'Add a Martian router to your application in minutes'
 Adding a Martian router to your application is as simple as changing a single parameter. Let's see how to modify our translation app to use intelligent model selection.
 
 ## Create Your First Router
+
 First, create a router (this only needs to be done once):
 
 <Steps>
@@ -17,6 +18,7 @@ First, create a router (this only needs to be done once):
     url = f'{API_URL}/org/{ORG_ID}/routers'
     ```
   </Step>
+
   <Step title="Define Router Parameters">
     ```python
     data = {
@@ -26,6 +28,7 @@ First, create a router (this only needs to be done once):
     }
     ```
   </Step>
+
   <Step title="Create Router">
     ```python
     response = requests.post(url, headers=HEADERS, json=data)
@@ -38,7 +41,9 @@ First, create a router (this only needs to be done once):
 It's important to set the baseline to the existing model you are using to generate the maximum quality improvement and cost reduction achievable. You will be able to showcase your performance improvement to others later on.
 
 ## Verifying Router Creation
+
 After creating a router, verify its details:
+
 ```python
 def get_router_details(router_id: str):
     """Retrieve details about a specific translation router."""
@@ -55,6 +60,7 @@ print(f"Created at: {details['created_at']}")
 ```
 
 ## Use the Router
+
 Using a router requires changing only one line of code in your existing application. Simply set your `model` parameter tequal to the router `Name` parameter assigned in the router creation step:
 
 ```python
@@ -70,35 +76,48 @@ def translate(text):
     return response.choices[0].message.content.strip()
 
 # Example usage
-result = translate("안녕하세요")
+result = translate("<translate>안녕하세요</translate>")
 print(f"Translation: {result}")
 ```
 
 That's it! Your application now has intelligent model selection. The router will automatically:
-- Select appropriate models for each request
-- Optimize for both cost and quality
-- Improve its selections over time based on feedback
+
+* Select appropriate models for each request
+
+* Optimize for both cost and quality
+
+* Improve its selections over time based on feedback
 
 ## Common Issues
+
 <AccordionGroup>
   <Accordion title="Invalid Judge ID">
-    Ensure the judge_id exists and is configured for the correct language pair.
+    Ensure the judge\_id exists and is configured for the correct language pair.
   </Accordion>
+
   <Accordion title="Invalid Baseline Model">
-    Use only supported model names for the baseline_model parameter.
+    Use only supported model names for the baseline\_model parameter.
   </Accordion>
+
   <Accordion title="Duplicate Names">
     Router names must be unique. Consider names like:
-    - `ko-en-business-router`
-    - `ko-en-technical-router`
+
+    * `ko-en-business-router`
+
+    * `ko-en-technical-router`
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
+
 Now that you've created a translation router, you can:
+
 1. Test routing with different constraints
+
 2. Monitor translation quality
+
 3. Store and analyze translations
+
 4. Add quality judgements for optimization
 
 <Note>

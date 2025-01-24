@@ -326,101 +326,24 @@ router_id = response.json()['router_id']
 print(f"Updated router with ID: {router_id}")
 ```
 
+## View judge details
 
-## Judge Versions
-Like routers, judges have versions that improve over time. Each version represents a refinement in how quality is evaluated.
-```python judge.py
-def manage_judge_versions(judge_id):
-    """List and manage judge versions."""
-    # Get all versions
-    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions'
-    response = requests.get(url, headers=HEADERS)
-    versions = response.json()['versions']
-    
-    print("Judge Versions:")
-    for version in versions:
-        print(f"\nVersion ID: {version['version_id']}")
-        print(f"Created: {version['created_at']}")
-        print(f"Slug: {version['slug']}")
-        print(f"IAA Score: {version['iaa']}")
-        
-    return versions
-def get_version_details(judge_id, version_id):
-    """Get detailed information about a specific version."""
-    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}'
-    response = requests.get(url, headers=HEADERS)
-    version = response.json()
-    
-    print(f"\nVersion Details:")
-    print(f"Created: {version['created_at']}")
-    print(f"IAA Score: {version['iaa']}")
-    return version
+Start by creating a `view_judge.py` file.
+
+With the following script you can get the details of the judge object.
+
+```python view_judge.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+judge_id = input("Enter judge ID: ")
+
+url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}'
+response = requests.get(url, headers=HEADERS)
+details = response.json()
+print(details)
 ```
-<Note>
-  The IAA (Inter-Annotator Agreement) score indicates how consistently a judge version evaluates similar translations.
-</Note>
-## Using Judges with Routers
-Judges are automatically connected to routers during router creation. Here's how to use them together:
-```python judge.py
-def create_router_with_judge(judge_id):
-    """Create a router that uses a specific judge."""
-    url = f'{API_URL}/org/{ORG_ID}/routers'
-    data = {
-        'name': 'korean-english-router',
-        'description': 'Routes Korean-English translation requests',
-        'judge_id': judge_id,
-        'baseline_model': 'gpt-4'
-    }
-    response = requests.post(url, headers=HEADERS, json=data)
-    router_id = response.json()['router_id']
-    return router_id
-def store_translation_feedback(router_id, version_id, request, response):
-    """Store a translation pair for judge evaluation."""
-    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response'
-    data = {
-        'request': request,
-        'response': response
-    }
-    response = requests.post(url, headers=HEADERS, json=data)
-    return response.json()['request_response_id']
-```
-## Translation Quality Metrics
-Judges evaluate translations based on multiple criteria:
-<AccordionGroup>
-  <Accordion title="Accuracy">
-    - Meaning preservation
-    - Cultural nuance
-    - Context awareness
-  </Accordion>
-  <Accordion title="Fluency">
-    - Natural language flow
-    - Grammar correctness
-    - Idiomatic usage
-  </Accordion>
-  <Accordion title="Style">
-    - Tone consistency
-    - Formality level
-    - Target audience appropriateness
-  </Accordion>
-</AccordionGroup>
-### Monitoring Performance
-Track judge and router performance together:
-```python judge.py
-def monitor_translation_quality(router_id, version_id, time_period='7d'):
-    """Monitor translation quality metrics."""
-    url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/metrics'
-    params = {'period': time_period}
-    response = requests.get(url, headers=HEADERS, params=params)
-    metrics = response.json()
-    
-    print("\nQuality Metrics:")
-    print(f"Average Score: {metrics['average_score']:.2f}")
-    print(f"Score Distribution:")
-    for range_key, count in metrics['score_distribution'].items():
-        print(f"  {range_key}: {count} translations")
-        
-    return metrics
-```
+
 ## Best Practices
 1. Test judge behavior with known good/bad translations
 2. Monitor IAA scores across versions

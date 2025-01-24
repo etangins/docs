@@ -41,7 +41,7 @@ def translate(text):
     """Translate text between Korean and English with automatic model selection."""
     response = client.chat.completions.create(
 -         model="claude-3-5-sonnet-20241022",  # Now using Claude through Martian
-+         model="translation-router",  # Just change this one line to the name you used when creating a router to use your router
++         model="id:version",  # Just change this one line to the id:version you received when creating a router and printing its details
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
@@ -65,6 +65,10 @@ Test to make sure it is working. Run the translator.
    python app.py
 
 ```
+
+<Note>
+  Make sure you use the router `id:version` and not the router `name` when calling the router. If you don't know the router `id` or the router `version`, you can find both of those details by running `create_router.py` and looking at the printed details as explained above on this page.
+</Note>
 
 That's it! Your application now has intelligent model selection. The router will automatically:
 

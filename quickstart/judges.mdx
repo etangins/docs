@@ -130,19 +130,6 @@ data = {
 }
 
 response = requests.post(url, headers=HEADERS, json=data)
-print(response.json()) 
-```
-
-
-# Store response
-url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/response'
-
-data = {
-    'request': request,
-    'response': response_dict
-}
-
-response = requests.post(url, headers=HEADERS, json=data)
 print(response.json())
 ```
 

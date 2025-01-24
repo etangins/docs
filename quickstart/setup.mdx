@@ -53,7 +53,7 @@ In the last section you should have already created a project directory, virtual
 
 <Steps>
 
-  <Step title="Configure Environment">
+  <Step title="Update environment variables">
     Update the previously created `.env` file:
 
     ```diff
@@ -70,12 +70,8 @@ In the last section you should have already created a project directory, virtual
 
       Remember to change your\_org\_id\_here to your ORG ID which was found earlier in the page.
     </Note>
-    <Note>
-      Make sure you are still in a virtual environment as instructed in the previous page
-    </Note>
-
-    Create `config.py` to load environment variables:
-
+  </Step>
+  <Step title="Create `config.py` to load environment variables">
     ```python config.py
     from dotenv import load_dotenv
     import os
@@ -104,6 +100,10 @@ In the last section you should have already created a project directory, virtual
 </Warning>
 
 ## Call LLMs through Martian and Test Your Setup
+
+<Note>
+      Make sure you are still in a virtual environment as instructed in the previous page
+</Note>
 
 Calling LLMs through Martian requires changing only a couple lines of code.
 

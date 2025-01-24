@@ -37,7 +37,8 @@ def translate(text):
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
-        ],
+-         ]
++         ],
 +         extra_body={
 +           "cost": 0.0005 # The following result will be sent to the best performing model with an expected cost equal or below .005 cents or less
 +           # "cost": "gpt-4o-mini" # The following result will be sent to the best performing model with an expected cost equal or below gpt-4o-mini price

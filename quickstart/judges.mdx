@@ -48,11 +48,11 @@ print(response.json())
 
 ## Adding data to a judge
 
-Start by creating a `add_data_to_judge_good.py` file and a `add_data_to_judge_bad.py`.
+Start by creating a `add_data_to_judge.py` file.
 
 With the following scripts you can change pass Request and Response data for judge validation, we provide you with examples that show you both positive and negative score.
 
-```python add_data_to_judge_good.py
+```python add_data_to_judge.py
 import requests
 from config import API_URL, ORG_ID, HEADERS, client
 
@@ -133,75 +133,6 @@ response = requests.post(url, headers=HEADERS, json=data)
 print(response.json()) 
 ```
 
-and for negative scores
-
-```python add_data_to_judge_bad.py
-import requests
-from config import API_URL, ORG_ID, HEADERS, client
-
-judge_id = input("Enter judge ID: ")
-version_id = input("Enter version ID: ")
-
-request = {
-    "model": "gpt-4o-mini-2024-07-18",
-    "messages": [
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            """},
-        {"role": "user", "content": "Tell me a joke?"}
-    ],
-}
-
-response = client.chat.completions.create(
-    model="gpt-4o-mini-2024-07-18",
-    messages=[
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            """},
-        {"role": "user", "content": "Tell me a joke?"}
-    ],
-)
-
-response.choices[0].message.content = "Ništa ne radim."
-
-print(response)
-
-# Convert the ChatCompletion object to a dictionary
-response_dict = {
-    'id': response.id,
-    'choices': [
-        {
-            'message': {
-                'role': choice.message.role,
-                'content': choice.message.content
-            },
-            'index': choice.index,
-            'finish_reason': choice.finish_reason
-        }
-        for choice in response.choices
-    ],
-    'model': response.model,
-    'created': response.created,
-    'usage': {
-        'prompt_tokens': response.usage.prompt_tokens,
-        'completion_tokens': response.usage.completion_tokens,
-        'total_tokens': response.usage.total_tokens
-    },
-    'object': response.object,
-    'cost': response.cost,
-    'response': {
-        'role': response.choices[0].message.role,
-        'content': response.choices[0].message.content
-    }
-}
 
 # Store response
 url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/response'

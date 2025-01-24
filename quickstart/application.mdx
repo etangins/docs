@@ -112,21 +112,23 @@ if __name__ == "__main__":
 ## Test the Application
 
 1. Make sure your virtual environment is activated:<CodeGroup>
-     <CodeBlock title="Unix/macOS">
-       ```bash
-       source venv/bin/activate
-       ```
-     </CodeBlock>
+   <Tabs>
+      <Tab title="Unix/macOS">
+        ```bash
+        source venv/bin/activate
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```batch
+        .\venv\Scripts\activate
+        ```
+      </Tab>
+    </Tabs>
 
-     <CodeBlock title="Windows">
-       ```bash
-       .\venv\Scripts\activate
-       ```
-     </CodeBlock>
-   </CodeGroup>
+3. Run the translator:
 
-2. Run the translator:```bash
-   python app.py
+   ```bash
+       python app.py
    ```
 
 ## Current Limitations from Using OpenAI Instead of Martian

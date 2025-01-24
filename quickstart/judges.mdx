@@ -50,7 +50,7 @@ print(response.json())
 
 Start by creating a `add_data_to_judge.py` file.
 
-With the following scripts you can change pass Request and Response data for judge validation, we provide you with examples that show you both positive and negative score. 
+With the following scripts you can change pass Request and Response data for judge validation, we provide you with examples that show you both positive and negative score.
 
 ```python add_data_to_judge.py
 import requests
@@ -131,6 +131,19 @@ data = {
 
 response = requests.post(url, headers=HEADERS, json=data)
 print(response.json()) 
+```
+
+
+# Store response
+url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/response'
+
+data = {
+    'request': request,
+    'response': response_dict
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
 ```
 
 ## Run the judge 
@@ -260,6 +273,43 @@ url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}'
 response = requests.get(url, headers=HEADERS)
 details = response.json()
 print(details)
+```
+
+## Monitor judge performance
+
+Start by creating a `evaluate_judge.py` file.
+
+With the following script, you can measure the interannotator agreement of the judge with the ideal outputs, and optionally download that data to csv.
+
+```python evaluate_judge.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+def evaluate_judge(judge_id, version_id, export_csv=False):
+    """Evaluate judge alignment with human judgements."""
+    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/evaluate'
+    
+    # Send export_to_csv directly as the request body
+    response = requests.post(url, headers=HEADERS, json=export_csv)
+    
+    if export_csv:
+        # Save CSV response to file
+        filename = f'judge_comparison_{judge_id}_{version_id}.csv'
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        print(f'Results exported to {filename}')
+    else:
+        # Print JSON results
+        result = response.json()
+        print(f"IAA Score: {result['iaa_score']}")
+        print(f"Number of comparisons: {result['num_comparisons']}")
+
+# Get inputs and run evaluation
+judge_id = input("Enter judge ID: ")
+version_id = input("Enter version ID (or 'latest'): ")
+export_csv = input("Export detailed results to CSV? (y/n): ").lower() == 'y'
+
+evaluate_judge(judge_id, version_id, export_csv)
 ```
 
 ## Best Practices

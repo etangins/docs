@@ -86,7 +86,7 @@ Let's create a new file called `list_router_versions.py` and add the following c
   <Accordion title="Using Latest Version">
     Always use the base router name to get the latest version:
     ```python basic_translator.py
-    model="translation-router"  # Always uses latest version
+    model="abc-123-456-789"  # Always uses latest version
     ```
   </Accordion>
   <Accordion title="Using Specific Version">
@@ -100,10 +100,10 @@ Let's create a new file called `list_router_versions.py` and add the following c
     Test new versions before switching production traffic:
     ```python basic_translator.py
     # Test new version
-    result = translate("테스트", "translation-router-2")
+    result = translate("테스트", "abc-123-456-789:2")
     
     # If satisfied, switch to using latest
-    result = translate("테스트", "translation-router")
+    result = translate("테스트", "abc-123-456-789")
     ```
   </Accordion>
 </AccordionGroup>

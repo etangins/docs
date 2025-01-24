@@ -3,10 +3,10 @@ title: 'Router Versions'
 description: 'Manage and track different versions of your router'
 ---
 ## Understanding Router Versions
-Router versions represent different states of your router's optimization as it learns from feedback. When you create a router named `translation-router`, new versions will automatically be created over time as:
-- `translation-router-1`
-- `translation-router-2`
-- `translation-router-3`
+Router versions represent different states of your router's optimization as it learns from feedback. When you create a router with the id `abc-123-456-789`, new versions will automatically be created over time as:
+- `abc-123-456-789:1`
+- `abc-123-456-789:2`
+- `abc-123-456-789:3`
 And so on.
 
 Each version contains:
@@ -92,8 +92,8 @@ Let's create a new file called `list_router_versions.py` and add the following c
   <Accordion title="Using Specific Version">
     Use numbered versions for consistency:
     ```python basic_translator.py
-    model="translation-router-1"  # Always uses version 1
-    model="translation-router-2"  # Always uses version 2
+    model="abc-123-456-789:1"  # Always uses version 1
+    model="abc-123-456-789:2"  # Always uses version 2
     ```
   </Accordion>
   <Accordion title="Version Migration">

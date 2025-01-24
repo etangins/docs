@@ -215,6 +215,118 @@ response = requests.post(url, headers=HEADERS, json=data)
 print(response.json())
 ```
 
+## Run the judge 
+
+Now we are ready to get evaluations from the judge. After you create a script called `run_judge.py` go ahead and run the code below in that script.
+
+```python run_judge.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+def test_judge(judge_id, version_id, request_response_id):
+    url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/call'
+    
+    # Example translation pair
+    test_data = {
+        'request_response_id': request_response_id,
+    }
+    
+    response = requests.post(url, headers=HEADERS, json=test_data)
+    result = response.json()
+    print(result)
+
+
+judge_id = input("Enter judge ID: ")
+version_id = input("Enter version ID: ")
+request_response_id = input("Enter request response ID: ")
+test_judge(judge_id, version_id, request_response_id)
+```
+
+## Pass judgements to the judge
+
+Start by creating a `add_judgement.py` file.
+
+With the following script you can close the feedback loop and send judgements to the judge.
+
+```python add_judgement.py
+import requests
+from config import API_URL, ORG_ID, HEADERS, client
+
+judge_id = input("Enter judge ID: ")
+version_id = input("Enter version ID: ")
+request_response_id = input("Enter request_response_id: ")
+
+judgement = {"score": 1, "rationale": "Very useful"}
+
+url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/judgement'
+
+data = {
+    'request_response_id': request_response_id,
+    'judgement': judgement
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+```
+
+## Creating a new router using your judge
+
+Once you feel confident with your judge you can create a new router with this judge. To update an existing router with your judge (see the next section).
+
+Start by creating a `create_router_for_judge.py` file and add the following code.
+
+```python create_router_for_judge.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+judge_id = input("Enter judge ID: ")
+judge_version_id = input("Enter judge version ID: ")
+
+url = f'{API_URL}/org/{ORG_ID}/routers'
+
+data = {
+    'name': 'translation-router',
+    'description': 'Routes Korean-English translation requests based on quality needs',
+    'baseline_model': 'gpt-4o-mini',  # The model you currently use for the application
+    'judge_id': judge_id,
+    'judge_version_id': judge_version_id,
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+router_id = response.json()['router_id']
+print(f"Created translation router with ID: {router_id}")
+```
+
+## Update existing router with judge
+
+Start by creating a `update_router.py` file.
+
+With the following script you can update an existing router to use the judge you created.
+
+```python update_router.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+router_id = input("Enter router ID: ")
+router_version_id = input("Enter router version ID: ")
+judge_id = input("Enter judge ID: ")
+judge_version_id = input("Enter judge version ID: ")
+
+url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{router_version_id}'
+
+data = {
+    'judge_id': judge_id,
+    'judge_version_id': judge_version_id
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+router_id = response.json()['router_id']
+print(f"Updated router with ID: {router_id}")
+```
+
+
 ## Judge Versions
 Like routers, judges have versions that improve over time. Each version represents a refinement in how quality is evaluated.
 ```python judge.py

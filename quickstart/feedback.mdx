@@ -133,6 +133,12 @@ print(response.json())
 3. Store important translations for future analysis
 4. Use consistent scoring criteria
 
+## How Does Data Persist Across Versions
+Feedback data is persisted until the judge is changed.
+If you change the judge, the old labels are no longer used when creating new versions of the router.
+This is done because new judges can specify dramatically different notions of quality, so the old judgements are then likely to be stale.
+
+
 ## Common Issues
 <AccordionGroup>
   <Accordion title="Invalid Score Range">

@@ -22,10 +22,10 @@ Often, users have an existing model they are using in their application and they
 
 Add a quality constraint to your router requests:
 
-```diff app.py
+```python app.py
 def translate(text, quality=None):    
     response = router.completions.create(
-        model="translation-router",
+        model="gpt-4o-mini",  # Fixed model for all translations
         messages=[
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}

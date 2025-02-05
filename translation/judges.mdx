@@ -4,18 +4,21 @@ description: 'Learn how to create and manage judges for translation quality eval
 ---
 
 ## Understanding Translation Judges
+
 A judge is a fundamental building block of the Martian system. For translation tasks, it defines what makes a "good" translation and provides consistent quality metrics that guide routing decisions.
 
 <CardGroup cols={2}>
   <Card title="Quality Definition" icon="star">
     Judges evaluate translation quality based on accuracy, fluency, and tone preservation
   </Card>
+
   <Card title="Feedback Loop" icon="rotate">
     Provides feedback to help routers select the most appropriate translation model
   </Card>
 </CardGroup>
 
 ## Creating Your First Judge
+
 <Steps>
   <Step title="Initialize Judge Creation">
     ```python
@@ -25,6 +28,7 @@ A judge is a fundamental building block of the Martian system. For translation t
     url = f'{API_URL}/org/{ORG_ID}/judges'
     ```
   </Step>
+
   <Step title="Define Judge Parameters">
     ```python
     data = {
@@ -33,6 +37,7 @@ A judge is a fundamental building block of the Martian system. For translation t
     }
     ```
   </Step>
+
   <Step title="Create Judge">
     ```python
     response = requests.post(url, headers=HEADERS, json=data)
@@ -43,7 +48,9 @@ A judge is a fundamental building block of the Martian system. For translation t
 </Steps>
 
 ## Verifying Judge Creation
+
 After creating a judge, verify its details:
+
 ```python
 def get_judge_details(judge_id: str):
     """Retrieve details about a specific translation judge."""
@@ -59,7 +66,9 @@ print(f"Latest version: {details['latest']}")
 ```
 
 ## Managing Multiple Judges
+
 If you're handling different language pairs or quality metrics, you might create multiple judges:
+
 ```python
 def list_judges():
     """List all translation judges in your organization."""
@@ -75,59 +84,83 @@ for judge in judges:
 ```
 
 ## Best Practices
+
 ### Naming Conventions
+
 <AccordionGroup>
   <Accordion title="Descriptive Names">
     Use names that clearly indicate the judge's purpose:
-    - `korean-english-judge`
-    - `business-translation-judge`
-    - `technical-translation-judge`
+
+    * `korean-english-judge`
+
+    * `business-translation-judge`
+
+    * `technical-translation-judge`
   </Accordion>
+
   <Accordion title="Detailed Descriptions">
     Include in your description:
-    - Language pairs supported
-    - Target quality metrics
-    - Specific use cases (e.g., business, technical, casual)
+
+    * Language pairs supported
+
+    * Target quality metrics
+
+    * Specific use cases (e.g., business, technical, casual)
   </Accordion>
 </AccordionGroup>
 
 ### Quality Metrics
+
 Consider these factors when evaluating translations:
+
 <CardGroup cols={2}>
   <Card title="Accuracy" icon="bullseye">
     How accurately is the meaning preserved?
   </Card>
+
   <Card title="Fluency" icon="pen-fancy">
     How natural does the translation read?
   </Card>
+
   <Card title="Tone" icon="comment">
     Is the tone/style maintained appropriately?
   </Card>
+
   <Card title="Context" icon="scroll">
     Is cultural context preserved where needed?
   </Card>
 </CardGroup>
 
 ## Common Issues
+
 <AccordionGroup>
   <Accordion title="Duplicate Names">
     Each judge must have a unique name. For multiple language pairs, consider names like:
-    - `ko-en-formal-judge`
-    - `ko-en-casual-judge`
+
+    * `ko-en-formal-judge`
+
+    * `ko-en-casual-judge`
   </Accordion>
+
   <Accordion title="Invalid Characters">
-    Judge names should only contain alphanumeric characters, hyphens, and underscores.
+    Judge names should only contain alphanumeric characters and hyphens.
   </Accordion>
+
   <Accordion title="Missing Description">
     Include specific details about which language pairs and quality metrics the judge evaluates.
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
+
 Now that you've created a translation judge, you can:
+
 1. Create a router that uses your judge
+
 2. Start evaluating translations
+
 3. Store and analyze translation quality
+
 4. Update quality metrics based on user feedback
 
 <Note>

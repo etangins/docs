@@ -166,17 +166,24 @@ With the following script you can close the feedback loop and send judgements to
 ```python add_judgement.py
 import requests
 from config import API_URL, ORG_ID, HEADERS, client
+import json
 
 judge_id = input("Enter judge ID: ")
 version_id = input("Enter version ID: ")
-request_response_id = input("Enter request_response_id: ")
+
+with open("./translation_request.json") as f:
+    translation_request = json.loads(f.read())
+
+with open("./translation_response.json") as f:
+    translation_response = json.loads(f.read())
 
 judgement = {"score": 1, "rationale": "Very useful"}
 
 url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/judgement'
 
 data = {
-    'request_response_id': request_response_id,
+    'request': translation_request,
+    'response': translation_response,
     'judgement': judgement
 }
 

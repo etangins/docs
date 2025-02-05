@@ -27,114 +27,73 @@ The system improves through:
 
 ## Add feedback
 
-To provide direct judgements, let's create a new file `add_feedback_to_router.py`:
+To provide direct judgements, let's edit our app.py file to support adding feedback:
 
-```python add_feedback_to_router.py
+```python app.py
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
 from config import API_URL, ORG_ID, HEADERS
 import requests
+import json 
 
-router_id = input("Enter router ID: ")
-version_id = input("Enter version ID: ")
-request_response_id = input("Enter request response ID: ")
+# Load environment variables
+load_dotenv()
 
-# Add judgement
-url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
-
-data = {
-    'request': request,
-    'response': response,
-    'judgement': {
-        'score': 3,
-        'rationale': 'The translation was accurate and preserved the meaning of the original text.'
-    }
-}
-
-response = requests.post(url, headers=HEADERS, json=data)
-print(response.json())
-judgement_id = response.json()['judgement_id']
-print(f"Added judgement with ID: {judgement_id}")
-```
-
-## Add data
-
-To add data, let's create a new file `add_data_to_router.py`:
-
-```python add_data_to_router.py
-import requests
-from config import API_URL, ORG_ID, HEADERS, client
-
-router_id = input("Enter router ID: ")
-version_id = input("Enter version ID: ")
-
-request = {
-    "model": "gpt-4o-mini-2024-07-18",
-    "messages": [
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            """},
-        {"role": "user", "content": "Tell me a joke?"}
-    ],
-}
-
-response = client.chat.completions.create(
-    model="gpt-4o-mini-2024-07-18",
-    messages=[
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            """},
-        {"role": "user", "content": "Tell me a joke?"}
-    ],
+# Configure OpenAI client
+client = OpenAI(
+        api_key=os.getenv("MARTIAN_API_KEY"),
+        base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
 )
 
-print(response)
-
-# Convert the ChatCompletion object to a dictionary
-response_dict = {
-    'id': response.id,
-    'choices': [
-        {
-            'message': {
-                'role': choice.message.role,
-                'content': choice.message.content
-            },
-            'index': choice.index,
-            'finish_reason': choice.finish_reason
-        }
-        for choice in response.choices
-    ],
-    'model': response.model,
-    'created': response.created,
-    'usage': {
-        'prompt_tokens': response.usage.prompt_tokens,
-        'completion_tokens': response.usage.completion_tokens,
-        'total_tokens': response.usage.total_tokens
-    },
-    'object': response.object,
-    'cost': response.cost,
-    'response': {
-        'role': response.choices[0].message.role,
-        'content': response.choices[0].message.content
+def translate(text):
+    """Translate text between Korean and English."""
+    request = {"model":"rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3",  # Just change this one line to the name you used when creating a router to use your router
+        "messages":[
+            {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
+                - Identify if the input is Korean or English
+                - If Korean, translate to English
+                - If English, translate to Korean
+                - Preserve meaning, tone, and nuance
+                - Maintain proper grammar and formality level
+                """},
+            {"role": "user", "content": text}
+        ],
+        "extra_body":{
+           "cost": 0.0005 # The following result will be sent to the best performing model with an expected cost equal or below .005 cents or less
+           # "cost": "gpt-4o-mini" # The following result will be sent to the best performing model with an expected cost equal or below gpt-4o-mini price
+         }
     }
-}
+    response = client.chat.completions.create(
+     **request   
+    )
+    print(response)
+    return request, response #.choices[0].message.content.strip()
 
-# Store response
-url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/response'
+if __name__ == "__main__":
+    while True:
+        text = input("\nEnter text to translate (or 'q' to quit): ")
+        if text.lower() == 'q':
+            break
+        router_id = "rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3"
+        version_id = "1"
+        translation_request, translation_response = translate(text)
+        url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
+        #print(json.loads(translation_response.json()).keys())
+        #exit()
+        data = {
+            "request": translation_request,
+            "response": json.loads(translation_response.json()),
+            #'request_response_id': "1123", 
+            'judgement': {
+                'score': 1.5,
+                'rationale': 'The translation was accurate and preserved the meaning of the original text.'
+            }
+        }
 
-data = {
-    'request': request,
-    'response': response_dict
-}
-
-response = requests.post(url, headers=HEADERS, json=data)
-print(response.json())
+        response = requests.post(url, headers=HEADERS, json=data)
+        print(response.json())
+        #print(f"\nTranslation: {result}")
 ```
 
 ## Best Practices

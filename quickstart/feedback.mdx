@@ -4,21 +4,29 @@ description: 'Help your router learn and improve automatically'
 ---
 
 ## Understanding Feedback
+
 The system improves through:
+
 <CardGroup cols={2}>
   <Card title="Direct Judgements" icon="star">
-    - Immediate quality scoring
-    - Guide future routing decisions
-    - Help identify optimal models
+    * Immediate quality scoring
+
+    * Guide future routing decisions
+
+    * Help identify optimal models
   </Card>
+
   <Card title="Request/Response Storage" icon="database">
-    - Builds interaction history
-    - Provides training data
-    - Enables performance analysis
+    * Builds interaction history
+
+    * Provides training data
+
+    * Enables performance analysis
   </Card>
 </CardGroup>
 
 ## Add feedback
+
 To provide direct judgements, let's create a new file `add_feedback_to_router.py`:
 
 ```python add_feedback_to_router.py
@@ -33,7 +41,8 @@ request_response_id = input("Enter request response ID: ")
 url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
 
 data = {
-    'request_response_id': request_response_id, 
+    'request': request,
+    'response': response,
     'judgement': {
         'score': 3,
         'rationale': 'The translation was accurate and preserved the meaning of the original text.'
@@ -47,6 +56,7 @@ print(f"Added judgement with ID: {judgement_id}")
 ```
 
 ## Add data
+
 To add data, let's create a new file `add_data_to_router.py`:
 
 ```python add_data_to_router.py
@@ -128,37 +138,49 @@ print(response.json())
 ```
 
 ## Best Practices
+
 1. Provide feedback regularly to improve routing decisions
+
 2. Include detailed rationale for low scores
+
 3. Store important translations for future analysis
+
 4. Use consistent scoring criteria
 
 ## How Does Data Persist Across Versions
+
 Feedback data is persisted until the judge is changed.
 If you change the judge, the old labels are no longer used when creating new versions of the router.
 This is done because new judges can specify dramatically different notions of quality, so the old judgements are then likely to be stale.
 
-
 ## Common Issues
+
 <AccordionGroup>
   <Accordion title="Invalid Score Range">
     Ensure scores are between 0 and 1
   </Accordion>
+
   <Accordion title="Missing Rationale">
     Always include explanatory rationale, especially for non-perfect scores
   </Accordion>
+
   <Accordion title="Request Format">
     Verify message format matches OpenAI chat completion format
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
+
 After implementing feedback:
+
 1. Monitor router performance
+
 2. Review feedback patterns
+
 3. Track quality improvements
+
 4. Analyze stored translations
 
 <Note>
-Remember to save response IDs for future reference. These can be useful for tracking improvements and analyzing patterns.
+  Remember to save response IDs for future reference. These can be useful for tracking improvements and analyzing patterns.
 </Note>

@@ -3,10 +3,10 @@ title: 'Router Versions'
 description: 'Manage and track different versions of your router'
 ---
 ## Understanding Router Versions
-Router versions represent different states of your router's optimization as it learns from feedback. When you create a router with the id `abc-123-456-789`, new versions will automatically be created over time as:
-- `abc-123-456-789:1`
-- `abc-123-456-789:2`
-- `abc-123-456-789:3`
+Router versions represent different states of your router's optimization as it learns from feedback. When you create a router with the id `rtr_abc-123-456-789`, new versions will automatically be created over time as:
+- `rtr_abc-123-456-789:1`
+- `rtr_abc-123-456-789:2`
+- `rtr_abc-123-456-789:3`
 And so on.
 
 Each version contains:
@@ -14,7 +14,7 @@ Each version contains:
 - Performance metrics
 - Associated judge version
 
-If you want to always use the latest version of the router, you can simply specify `translation-router` and the version of the router will be automatically switched to the latest version whenever a new version is released.
+If you want to always use the latest version of the router, you can simply specify the router id, e.g. `rtr_abc-123-456-789`.
 <CardGroup cols={2}>
   <Card title="Automatic Updates" icon="arrows-rotate">
     New versions are created automatically as your router learns from feedback
@@ -86,14 +86,14 @@ Let's create a new file called `list_router_versions.py` and add the following c
   <Accordion title="Using Latest Version">
     Always use the base router name to get the latest version:
     ```python basic_translator.py
-    model="abc-123-456-789"  # Always uses latest version
+    model="rtr_abc-123-456-789"  # Always uses latest version
     ```
   </Accordion>
   <Accordion title="Using Specific Version">
     Use numbered versions for consistency:
     ```python basic_translator.py
-    model="abc-123-456-789:1"  # Always uses version 1
-    model="abc-123-456-789:2"  # Always uses version 2
+    model="rtr_abc-123-456-789:1"  # Always uses version 1
+    model="rtr_abc-123-456-789:2"  # Always uses version 2
     ```
   </Accordion>
   <Accordion title="Version Migration">

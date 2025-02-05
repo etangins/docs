@@ -30,6 +30,7 @@ The system improves through:
 To provide direct judgements, let's edit our app.py file to support adding feedback:
 
 ```python app.py
+"""Basic translation implementation using OpenAI."""
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -46,9 +47,12 @@ client = OpenAI(
         base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
 )
 
+ROUTER_ID = "rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3"
+ROUTER_VERSION = "1"
+
 def translate(text):
     """Translate text between Korean and English."""
-    request = {"model":"rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3",  # Just change this one line to the name you used when creating a router to use your router
+    request = {"model":ROUTER_ID,  # Just change this one line to the name you used when creating a router to use your router
         "messages":[
             {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
                 - Identify if the input is Korean or English
@@ -68,32 +72,34 @@ def translate(text):
      **request   
     )
     print(response)
-    return request, response #.choices[0].message.content.strip()
+    return request, response
+
+
+def add_feedback(router_request, router_response, score, rationale=None):
+    url = f'{API_URL}/org/{ORG_ID}/routers/{ROUTER_ID}/versions/{ROUTER_VERSION}/judgement'
+    score = score + 1 # rescaling to the judge range
+    data = {
+        "request": router_request,
+        "response": json.loads(router_response.json()),
+        'judgement': {
+            'score': score,
+            'rationale': rationale or "No rationale provided"
+        }
+    }
+
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response
+
 
 if __name__ == "__main__":
     while True:
         text = input("\nEnter text to translate (or 'q' to quit): ")
         if text.lower() == 'q':
             break
-        router_id = "rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3"
-        version_id = "1"
         translation_request, translation_response = translate(text)
-        url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}/judgement'
-        #print(json.loads(translation_response.json()).keys())
-        #exit()
-        data = {
-            "request": translation_request,
-            "response": json.loads(translation_response.json()),
-            #'request_response_id': "1123", 
-            'judgement': {
-                'score': 1.5,
-                'rationale': 'The translation was accurate and preserved the meaning of the original text.'
-            }
-        }
-
-        response = requests.post(url, headers=HEADERS, json=data)
-        print(response.json())
-        #print(f"\nTranslation: {result}")
+        print(f"\nTranslation: {translation_response.choices[0].message.content.strip()}")
+        score = input("\nWhat was the translation quality? 0 (completely inaccurate) to 1 (completely accurate): ")
+        add_feedback(translation_request, translation_response, score)
 ```
 
 ## Best Practices

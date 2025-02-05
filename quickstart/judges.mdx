@@ -46,107 +46,104 @@ print(response.json())
 
 ```
 
-## Adding data to a judge
-
-Start by creating a `add_data_to_judge.py` file.
-
-With the following scripts you can change pass Request and Response data for judge validation, we provide you with examples that show you both positive and negative score.
-
-```python add_data_to_judge.py
-import requests
-from config import API_URL, ORG_ID, HEADERS, client
-
-judge_id = input("Enter judge ID: ")
-version_id = input("Enter version ID: ")
-
-request = {
-    "model": "gpt-4o-mini-2024-07-18",
-    "messages": [
-        {"role": "system", "content": """You are a highly skilled translator
-             with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            - output ONLY the translation
-            """},
-        {"role": "user", "content": "<translate>apple</translate>"}
-    ],
-}
-
-response = client.chat.completions.create(
-    model="gpt-4o-mini-2024-07-18",
-    messages=[
-        {"role": "system", "content": """You are a highly skilled translator with expertise in many languages. Your task is to:
-            - Identify if the input is Korean or English
-            - If Korean, translate to English
-            - If English, translate to Korean
-            - Preserve meaning, tone, and nuance
-            - Maintain proper grammar and formality level
-            - output ONLY the translation
-            """},
-        {"role": "user", "content": "<translate>apple</translate>"}
-    ],
-)
-
-print(response)
-
-# Convert the ChatCompletion object to a dictionary
-response_dict = {
-    'id': response.id,
-    'choices': [
-        {
-            'message': {
-                'role': choice.message.role,
-                'content': choice.message.content
-            },
-            'index': choice.index,
-            'finish_reason': choice.finish_reason
-        }
-        for choice in response.choices
-    ],
-    'model': response.model,
-    'created': response.created,
-    'usage': {
-        'prompt_tokens': response.usage.prompt_tokens,
-        'completion_tokens': response.usage.completion_tokens,
-        'total_tokens': response.usage.total_tokens
-    },
-    'object': response.object,
-    'cost': response.cost,
-    'response': {
-        'role': response.choices[0].message.role,
-        'content': response.choices[0].message.content
-    }
-}
-
-# Store response
-url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/response'
-
-data = {
-    'request': request,
-    'response': response_dict
-}
-
-response = requests.post(url, headers=HEADERS, json=data)
-print(response.json())
-```
 
 ## Run the judge 
 
+First, let's create some data which we can judge. We need a request and a response. These should be in the same format as produced by running a router via the openai api. For convenience, here are two files with example data:
+
+```json translation_request.json
+{
+    "model": "rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3",
+    "messages": [
+        {
+            "role": "system",
+            "content": "You are a highly skilled translator with expertise in many languages. Your task is to:\n                - Identify if the input is Korean or English\n                - If Korean, translate to English\n                - If English, translate to Korean\n                - Preserve meaning, tone, and nuance\n                - Maintain proper grammar and formality level\n                "
+        },
+        {
+            "role": "user",
+            "content": "hello world"
+        }
+    ],
+    "extra_body": {
+        "cost": 0.0005
+    }
+}
+```
+
+
+```json translation_response.json
+{
+    "id": "8d5f5360-710c-4c7e-a0b5-546b3a0521f5",
+    "choices": [
+        {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+                "content": "세상에 안녕하세요",
+                "refusal": null,
+                "role": "assistant",
+                "audio": null,
+                "function_call": null,
+                "tool_calls": null
+            }
+        }
+    ],
+    "created": 1738740820,
+    "model": "gpt-4-0613",
+    "object": "chat.completion",
+    "service_tier": "default",
+    "system_fingerprint": null,
+    "usage": {
+        "completion_tokens": 8,
+        "prompt_tokens": 81,
+        "total_tokens": 89,
+        "completion_tokens_details": {
+            "accepted_prediction_tokens": 0,
+            "audio_tokens": 0,
+            "reasoning_tokens": 0,
+            "rejected_prediction_tokens": 0
+        },
+        "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0
+        }
+    },
+    "cost": 0.00291,
+    "response": {
+        "role": "assistant",
+        "content": "세상에 안녕하세요"
+    },
+    "token_counts": {
+        "prompt": 81.0,
+        "completion": 8.0,
+        "request": 0.0
+    }
+}
+```
+
 Now we are ready to get evaluations from the judge. After you create a script called `run_judge.py` go ahead and run the code below in that script.
+
 
 ```python run_judge.py
 from config import API_URL, ORG_ID, HEADERS
 import requests
+import json
 
-def test_judge(judge_id, version_id, request_response_id):
+with open("./translation_request.json") as f:
+    translation_request = json.loads(f.read())
+
+with open("./translation_response.json") as f:
+    translation_response = json.loads(f.read())
+
+
+def test_judge(judge_id, version_id):
     url = f'{API_URL}/org/{ORG_ID}/judges/{judge_id}/versions/{version_id}/call'
     
     # Example translation pair
     test_data = {
-        'request_response_id': request_response_id,
+        'request': translation_request,
+        'response': translation_response
     }
     
     response = requests.post(url, headers=HEADERS, json=test_data)
@@ -156,8 +153,8 @@ def test_judge(judge_id, version_id, request_response_id):
 
 judge_id = input("Enter judge ID: ")
 version_id = input("Enter version ID: ")
-request_response_id = input("Enter request response ID: ")
-test_judge(judge_id, version_id, request_response_id)
+# request_response_id = input("Enter request response ID: ")
+test_judge(judge_id, version_id)
 ```
 
 ## Pass judgements to the judge

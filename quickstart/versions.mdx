@@ -85,20 +85,20 @@ Let's create a new file called `list_router_versions.py` and add the following c
 <AccordionGroup>
   <Accordion title="Using Latest Version">
     Always use the base router name to get the latest version:
-    ```python basic_translator.py
+    ```python app.py 
     model="rtr_abc-123-456-789"  # Always uses latest version
     ```
   </Accordion>
   <Accordion title="Using Specific Version">
     Use numbered versions for consistency:
-    ```python basic_translator.py
+    ```python app.py
     model="rtr_abc-123-456-789:1"  # Always uses version 1
     model="rtr_abc-123-456-789:2"  # Always uses version 2
     ```
   </Accordion>
   <Accordion title="Version Migration">
     Test new versions before switching production traffic:
-    ```python basic_translator.py
+    ```python app.py
     # Test new version
     result = translate("테스트", "abc-123-456-789:2")
     

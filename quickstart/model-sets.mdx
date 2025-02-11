@@ -9,10 +9,7 @@ Model Sets are collections of AI models that you choose to route between, which 
 
 Filter and choose between more than 100 LLMs and create your first model set. Your router will use these models to generate its responses.
 
-### ---
-title: "Model Sets"
-description: "Group your preferred models for your Martian router"
----Predicates
+### Predicates
 
 We assign predicates to a Model Set to filter its models by certain properties, in the format of a Mongo Query:
 
@@ -20,9 +17,7 @@ We assign predicates to a Model Set to filter its models by certain properties, 
 
   `"predicates": {}`
 
-   
-
-* If you want a model set to contain only your organization's custom models: 
+* If you want a model set to contain only your organization's custom models:
 
   `"predicates": {"is_adapters_model": False}`
 

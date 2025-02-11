@@ -1,0 +1,175 @@
+---
+title: "Model Sets"
+description: "Group your preferred models for your Martian router"
+---
+
+## Understanding Model Sets
+
+Model Sets are collections of AI models that you choose to route between, which can be customized based on factors such as functionality, performance levels, compliance standards, or specific use cases.
+
+Filter and choose between more than 100 LLMs and create your first model set. Your router will use these models to generate its responses.
+
+### ---
+title: "Model Sets"
+description: "Group your preferred models for your Martian router"
+---Predicates
+
+We assign predicates to a Model Set to filter its models by certain properties, in the format of a Mongo Query:
+
+* If you want a model set to contain every model, use an empty query:
+
+  `"predicates": {}`
+
+   
+
+* If you want a model set to contain only your organization's custom models: 
+
+  `"predicates": {"is_adapters_model": False}`
+
+* If you want models from OpenAI that start with gpt-4o or gpt-o1-mini & models from Anthropic that have the name of claude-3-5-sonnet-20241022:
+
+```json
+"predicates": {
+  "$or": [
+    {
+      "properties.provider_name": "openai",
+      "properties.name": {
+        "$regex": "^(gpt-4o|gpt-o1-mini)"  # Regex match
+      }
+    },
+    {
+      "properties.provider_name": "anthropic",
+      "properties.name": "claude-3-5-sonnet-20241022"  # Exact match
+    }
+ ]
+}
+```
+
+## Creating a Model Set
+
+Let's create a model set that uses only your organization's own models.&#x20;
+
+Start by creating a `model_set.py` file.
+
+```python model_set.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+url = f'{API_URL}/org/{ORG_ID}/modelSets'
+data = {
+  "name": "Custom Models Set",
+  "predicates": {"is_adapters_model": False}
+}
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+```
+
+Upon creation, a Model Set will contain a `model_history` list containing all the organization's models that correspond to the predicate filters.&#x20;
+
+### Syncing the Model History of a Model Set
+
+If you've added models to your organization or want to make sure your models are up to date with the models provided by Martian, you can sync the `model_history` of your Model Set.
+
+```python model_set.py
+url = f'{API_URL}/org/{ORG_ID}/modelSets/{model_set_id}/sync'
+response = requests.post(url, headers=HEADERS)
+```
+
+### Viewing your Model Sets
+
+To see all of your organization's Model Sets:
+
+```python model_set.py
+url = f'{API_URL}/org/{ORG_ID}/modelSets'
+response = requests.get(url, headers=HEADERS)
+print(response.json())
+```
+
+### Updating a Model Set
+
+Let's say we want to edit our Model Set and add OpenAI's `o3-mini` model:
+
+```python model_set.py
+url = f'{API_URL}/org/{ORG_ID}/modelSets/{model_set_id}'
+data = {
+  "predicates": {
+    "$or": [
+      {
+        "properties.provider_name": "openai",
+        "properties.name": "o3-mini",
+      },
+      {
+        "is_adapters_model": False
+      }
+   ]
+  }
+}
+response = requests.patch(url, headers=HEADERS, json=data)
+print(response.json())
+```
+
+The `model_history` of your model set will automatically be synced when you update the `predicates` of a model set.
+
+### Adding a custom model to your organization:
+
+Start by creating a `create_custom_model.py` file.
+
+```python create_custom_model.py
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+url = f'{API_URL}/org/{ORG_ID}/models'
+data = {
+    "base_url": "MODEL_BASE_URL",  # provide env variable or value
+    "api_key": "MODEL_API_KEY",  # provide env variable or value
+    "provider": "openai",
+    "is_adapters_model": True,
+    "properties": {"context_length": 128000, "name": "custom model"},
+    "cost": {"prompt": 0.55e-6, "completion": 2.19e-6}
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+
+# GET models should now include the new model
+all_models = requests.get(url, headers=HEADERS)
+print(all_models)
+```
+
+## Using Model Sets in Routers
+
+When a router is created without specifying a `model_set_id`, we use a default model set containing all the LLMs attached to the organization.&#x20;
+
+### Creating a Router with a Model Set
+
+If you already have a Model Set you want to use for a new Router, you can include the `model_set_id` in the parameters you use to create the Router.
+
+```python
+from config import API_URL, ORG_ID, HEADERS
+import requests
+
+url = f'{API_URL}/org/{ORG_ID}/routers'
+
+data = {
+  'name': 'translation-router',
+  'description': 'Routes Korean-English translation requests based on quality needs',
+  'baseline_model': 'gpt-4o-mini'
+  'model_set_id': model_set_id  # add the id of your Model Set
+}
+
+response = requests.post(url, headers=HEADERS, json=data)
+print(response.json())
+```
+
+### Adding a Model Set to an existing Router
+
+You can update a Router to use a new Model Set. This will create a new Router version.
+
+```python
+url = f'{API_URL}/org/{ORG_ID}/routers/{router_id}/versions/{version_id}'
+data = {
+  "model_set_id": new_model_set_id
+}
+response = await client.post(url, headers=HEADERS, json=data)
+print(response.json())
+```

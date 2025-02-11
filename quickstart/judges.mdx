@@ -1,27 +1,37 @@
 ---
-title: 'Creating Judges'
-description: 'Set up quality metrics for your router'
+title: "Creating Judges"
+description: "Set up quality metrics for your router"
 ---
+
 ## Understanding Judges
+
 Judges are the foundation of Martian's quality optimization system. They:
-- Define what "good" means for your specific use case
-- Automatically evaluate model outputs
-- Guide router decisions for model selection
-- Enable continuous quality improvement
+
+* Define what "good" means for your specific use case
+
+* Automatically evaluate model outputs
+
+* Guide router decisions for model selection
+
+* Enable continuous quality improvement
+
 <CardGroup cols={2}>
   <Card title="Quality Definition" icon="scale-balanced">
     Define custom quality metrics specific to your translation needs
   </Card>
+
   <Card title="Automatic Evaluation" icon="robot">
     Automatically score translations based on your criteria
   </Card>
 </CardGroup>
+
 ## Creating a Translation Judge
+
 Let's create a judge for Korean-English translation:
 
 Start by creating a `create_judge.py` file.
 
-With the following script you can change rubric, possible scores range, and also you can set generate_validation_plan to True to get more advanced judge.
+With the following script you can change rubric, possible scores range, and also you can set generate\_validation\_plan to True to get more advanced judge.
 
 ```python create_judge.py
 
@@ -46,8 +56,7 @@ print(response.json())
 
 ```
 
-
-## Run the judge 
+## Run the judge
 
 First, let's create some data which we can judge. We need a request and a response. These should be in the same format as produced by running a router via the openai api. For convenience, here are two files with example data:
 
@@ -69,7 +78,6 @@ First, let's create some data which we can judge. We need a request and a respon
     }
 }
 ```
-
 
 ```json translation_response.json
 {
@@ -123,7 +131,6 @@ First, let's create some data which we can judge. We need a request and a respon
 ```
 
 Now we are ready to get evaluations from the judge. After you create a script called `run_judge.py` go ahead and run the code below in that script.
-
 
 ```python run_judge.py
 from config import API_URL, ORG_ID, HEADERS
@@ -304,18 +311,26 @@ evaluate_judge(judge_id, version_id, export_csv)
 ```
 
 ## Best Practices
+
 1. Test judge behavior with known good/bad translations
+
 2. Monitor IAA scores across versions
+
 3. Regularly review judge evaluations
+
 4. Calibrate quality thresholds based on business needs
+
 ## Troubleshooting
+
 <AccordionGroup>
   <Accordion title="Inconsistent Scores">
     Check IAA scores and review recent evaluations
   </Accordion>
+
   <Accordion title="Low Quality Scores">
     Review quality criteria and judge version
   </Accordion>
+
   <Accordion title="Integration Issues">
     Verify judge ID and version compatibility
   </Accordion>

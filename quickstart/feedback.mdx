@@ -75,21 +75,28 @@ def translate(text):
     return request, response
 
 
-def add_feedback(router_request, router_response, score, rationale=None):
-    url = f'{API_URL}/org/{ORG_ID}/routers/{ROUTER_ID}/versions/{ROUTER_VERSION}/judgement'
-    score = score + 1 # rescaling to the judge range
+def add_request_and_response(router_request, router_response):
+    url = f'{API_URL}/org/{ORG_ID}/routers/{ROUTER_ID}/versions/{ROUTER_VERSION}/response'
     data = {
         "request": router_request,
-        "response": json.loads(router_response.json()),
-        'judgement': {
-            'score': score,
-            'rationale': rationale or "No rationale provided"
-        }
+        "response": json.loads(router_response.json())
     }
 
     response = requests.post(url, headers=HEADERS, json=data)
     return response
 
+
+def add_feedback(request_response_id, score, rationale=None):
+    url = f'{API_URL}/org/{ORG_ID}/routers/{ROUTER_ID}/versions/{ROUTER_VERSION}/judgement'
+    data = {
+        "request_response_id": request_response_id,  # The ID of the request-response pair
+        'judgement': {
+            'score': score,  # make sure it's in the judge's score range
+            'rationale': rationale or "No rationale provided"
+        }
+    }
+    response = requests.post(url, headers=HEADERS, json=data)
+    return response
 
 if __name__ == "__main__":
     while True:
@@ -98,8 +105,10 @@ if __name__ == "__main__":
             break
         translation_request, translation_response = translate(text)
         print(f"\nTranslation: {translation_response.choices[0].message.content.strip()}")
+
+        request_response_id = add_request_and_response(translation_request, translation_response).json()["request_response_id"]
         score = input("\nWhat was the translation quality? 0 (completely inaccurate) to 1 (completely accurate): ")
-        add_feedback(translation_request, translation_response, score)
+        add_feedback(request_response_id, score)
 ```
 
 ## Best Practices

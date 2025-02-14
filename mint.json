@@ -41,7 +41,8 @@
         "quickstart/quality",
         "quickstart/feedback",
         "quickstart/versions",
-        "quickstart/judges"
+        "quickstart/judges",
+        "quickstart/model-sets"
       ]
     }
   ],

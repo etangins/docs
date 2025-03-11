@@ -46,9 +46,9 @@ def translate(text):
             {"role": "system", "content": "You are a skilled Korean-English translator."},
             {"role": "user", "content": text}
         ],
-        extra_body={
-            "cost": "gpt-4o-mini"
-        }
++        extra_body={
++            "cost": "gpt-4o-mini"
++        }
     )
     return response.choices[0].message.content.strip()
 

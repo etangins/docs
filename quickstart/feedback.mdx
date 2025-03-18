@@ -1,27 +1,22 @@
 ---
-title: 'Providing Feedback'
-description: 'Help your router learn and improve automatically'
+title: "Providing Feedback"
+description: "Help your router learn and improve automatically"
 ---
 
 ## Understanding Feedback
 
 The system improves through:
 
-<CardGroup cols={2}>
+<CardGroup cols="2">
   <Card title="Direct Judgements" icon="star">
-    * Immediate quality scoring
-
-    * Guide future routing decisions
-
-    * Help identify optimal models
+    - Immediate quality scoring
+    - Guide future routing decisions
+    - Help identify optimal models
   </Card>
-
   <Card title="Request/Response Storage" icon="database">
-    * Builds interaction history
-
-    * Provides training data
-
-    * Enables performance analysis
+    - Builds interaction history
+    - Provides training data
+    - Enables performance analysis
   </Card>
 </CardGroup>
 
@@ -42,9 +37,15 @@ import json
 load_dotenv()
 
 # Configure OpenAI client
+API_KEY = os.getenv("MARTIAN_API_KEY")
+API_URL = os.getenv("MARTIAN_API_URL")
+if not API_KEY:
+    raise ValueError("Please set MARTIAN_API_KEY in .env file")
+if not API_URL:
+    raise ValueError("Please set MARTIAN_API_URL in .env file")
 client = OpenAI(
-        api_key=os.getenv("MARTIAN_API_KEY"),
-        base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
+    api_key=API_KEY,
+    base_url=f"{API_URL}/openai/v1"
 )
 
 ROUTER_ID = "rtr_6c19f40b-6897-4d04-9992-3c05c2e777b3"
@@ -106,7 +107,10 @@ if __name__ == "__main__":
         translation_request, translation_response = translate(text)
         print(f"\nTranslation: {translation_response.choices[0].message.content.strip()}")
 
-        request_response_id = add_request_and_response(translation_request, translation_response).json()["request_response_id"]
+        request_response = add_request_and_response(translation_request, translation_response).json()
+        if "detail" in request_response:
+            raise ValueError(f"Bad Router id or Router Version, please check - {request_response['detail']}")
+        request_response_id = request_response["request_response_id"]
         score = input("\nWhat was the translation quality? 0 (completely inaccurate) to 1 (completely accurate): ")
         add_feedback(request_response_id, score)
 ```
@@ -114,11 +118,8 @@ if __name__ == "__main__":
 ## Best Practices
 
 1. Provide feedback regularly to improve routing decisions
-
 2. Include detailed rationale for low scores
-
 3. Store important translations for future analysis
-
 4. Use consistent scoring criteria
 
 ## How Does Data Persist Across Versions
@@ -133,11 +134,9 @@ This is done because new judges can specify dramatically different notions of qu
   <Accordion title="Invalid Score Range">
     Ensure scores are between 0 and 1
   </Accordion>
-
   <Accordion title="Missing Rationale">
     Always include explanatory rationale, especially for non-perfect scores
   </Accordion>
-
   <Accordion title="Request Format">
     Verify message format matches OpenAI chat completion format
   </Accordion>
@@ -148,11 +147,8 @@ This is done because new judges can specify dramatically different notions of qu
 After implementing feedback:
 
 1. Monitor router performance
-
 2. Review feedback patterns
-
 3. Track quality improvements
-
 4. Analyze stored translations
 
 <Note>

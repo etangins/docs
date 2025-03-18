@@ -1,6 +1,6 @@
 ---
-title: 'Setup'
-description: 'Set up your environment for using Martian'
+title: "Setup"
+description: "Set up your environment for using Martian"
 ---
 
 Let's add Martian to your application. This involves a simple installation and changing only a few lines of code.
@@ -11,19 +11,16 @@ If you already have an API key, you can skip this section.
 
 <Steps>
   <Step title="Sign In">
-    Go to [develop.withmartian.com/workbench](https://develop.withmartian.com/dashboard) or whatever URL you normally access your user dashboard from.
+    Go to [withmartian.com/dashboard](https://withmartian.com/dashboard) or whatever URL you normally access your user dashboard from.
   </Step>
-
-  <Step title="Access Settings">
-    Click on the user profile icon in the top right corner
+  <Step title="Access API Settings">
+    Click on the **API Keys** tab in the left hand menur
   </Step>
-
   <Step title="Generate Key">
-    Navigate to Account > Organization > API Keys > Add API Key
+    Click **Add API Key**
   </Step>
-
   <Step title="Save Credentials">
-    Copy your API key and organization ID to your `.env` file as specified in more detail below
+    Copy your API key and organization ID (found in the URL address bar) to your `.env` file.
   </Step>
 </Steps>
 
@@ -44,7 +41,7 @@ Before you begin, ensure you have:
 </Check>
 
 <Check>
-  A Martian ORG ID. If you do not have one, go to `develop.withmartian.com/workbench`, sign in, and observe the characters that follow `workbench` in the URL
+  A Martian ORG ID. If you do not have one, go to `https://withmartian.com/dashboard`, sign in, and observe the characters that follow `dashboard/` in the URL
 </Check>
 
 ## Installation
@@ -52,7 +49,6 @@ Before you begin, ensure you have:
 In the last section you should have already created a project directory, virtual environment, and installed all dependencies after creating a `requirements.txt` file. If you have not done all those steps, please refer to the previous page and complete all steps. Then continue below
 
 <Steps>
-
   <Step title="Update environment variables">
     Update the previously created `.env` file:
 
@@ -66,9 +62,9 @@ In the last section you should have already created a project directory, virtual
     <Note>
       Remember to change `your_api_url_here` to it's actual value. Use the URL for your Martian environment. If you're using the public endpoint, that would be https://withmartian.com/api.
 
-      Remember to change your\_api\_key\_here to your API key which was found earlier in this page.
+      Remember to change your_api_key_here to your API key which was found earlier in this page.
 
-      Remember to change your\_org\_id\_here to your ORG ID which was found earlier in the page.
+      Remember to change your_org_id_here to your ORG ID which was found earlier in the page.
     </Note>
   </Step>
   <Step title="Create `config.py` to load environment variables">
@@ -80,6 +76,10 @@ In the last section you should have already created a project directory, virtual
     # Common API configuration
     API_URL = os.getenv("MARTIAN_API_URL")
     ORG_ID = os.getenv("MARTIAN_ORG_ID")
+    if not API_URL:
+        raise ValueError("Please set MARTIAN_API_URL in .env file")
+    if not ORG_ID:
+        raise ValueError("Please set MARTIAN_ORG_ID in .env file")
     HEADERS = {
         'accept': 'application/json',
         'Authorization': f'Bearer {os.getenv("MARTIAN_API_KEY")}',
@@ -102,15 +102,13 @@ In the last section you should have already created a project directory, virtual
 ## Call LLMs through Martian and Test Your Setup
 
 <Note>
-      Make sure you are still in a virtual environment as instructed in the previous page
+  Make sure you are still in a virtual environment as instructed in the previous page
 </Note>
 
 Calling LLMs through Martian requires changing only a couple lines of code.
 
-1. Replace the OpenAI api\_key parameter
-
-2. Replace the base\_url parameters
-
+1. Replace the OpenAI api_key parameter
+2. Replace the base_url parameters
 3. Specify the LLM you wish to call by changing the `model` parameter to one of hundreds of our supported models.
 
    See the `app.py` example file below:
@@ -122,10 +120,19 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 # Configure client with Martian
-- client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+- OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+- if not OPENAI_API_KEY:
+-     raise ValueError("Please set OPEN_API_KEY in .env file")
+- client = OpenAI(api_key=OPENAI_API_KEY)
++ API_KEY = os.getenv("MARTIAN_API_KEY")
++ API_URL = os.getenv("MARTIAN_API_URL")
++ if not API_KEY:
++     raise ValueError("Please set MARTIAN_API_KEY in .env file")
++ if not API_URL:
++     raise ValueError("Please set MARTIAN_API_URL in .env file")
 + client = OpenAI(
-+     api_key=os.getenv("MARTIAN_API_KEY"),
-+     base_url=f"{os.getenv('MARTIAN_API_URL')}/openai/v1"
++     api_key=API_KEY,
++     base_url=f"{API_URL}/openai/v1"
 + )
 def translate(text):
     """Translate text between Korean and English."""
@@ -150,13 +157,12 @@ if __name__ == "__main__":
     print(f"\nTranslation: {result}")
 ```
 
-4. Test to make sure it is working
-Run the translator:
+1. Test to make sure it is working
+   Run the translator:
 
 ```bash
    
    python app.py
-
 ```
 
 That's it! With these simple changes, you're now ready to use Martian. In the next sections, we'll explore how to optimize your application using Martian's routing capabilities.
@@ -167,15 +173,12 @@ That's it! With these simple changes, you're now ready to use Martian. In the ne
   <Accordion title="402 Error">
     You need to add a credit card or contact the Martian team to use your API key.
   </Accordion>
-
   <Accordion title="Authentication Error">
     Verify your API key is correctly copied and there are no extra spaces.
   </Accordion>
-
   <Accordion title="Import Errors">
     Ensure you've activated your virtual environment and installed all requirements.
   </Accordion>
-
   <Accordion title="Invalid Martian API Key error">
     Check that both your `MARTIAN_API_KEY` AND your `MARTIAN_API_URL` are both correct. Having an incorrect `MARTIAN_API_URL` can also result in this error. Your `MARTIAN_API_URL` should include '/api' and may also include prefixes like `develop.withmartian.com`.
   </Accordion>

@@ -1,6 +1,6 @@
 ---
-title: 'Initial Application'
-description: 'Start with a basic LLM application'
+title: "Initial Application"
+description: "Start with a basic LLM application"
 ---
 
 Let's start with a simple translation application. We'll first set up our environment and then create a basic translator that we'll later optimize using Martian's routing system.
@@ -14,14 +14,12 @@ Let's start with a simple translation application. We'll first set up our enviro
     cd martian-translator
     ```
   </Step>
-
   <Step title="Clone the Starter Repository">
     ```bash
     git clone https://github.com/withmartian/routing-quickstart.git
     cd routing-quickstart
     ```
   </Step>
-
   <Step title="Create and Activate Virtual Environment">
     <Tabs>
       <Tab title="Unix/macOS">
@@ -38,7 +36,6 @@ Let's start with a simple translation application. We'll first set up our enviro
       </Tab>
     </Tabs>
   </Step>
-
   <Step title="Install Dependencies">
     Confirm that your Githbub repo contains the following requirements.txt file:
 
@@ -54,10 +51,9 @@ Let's start with a simple translation application. We'll first set up our enviro
     pip install -r requirements.txt
     ```
   </Step>
-
   <Step title="Set Up Environment Variables">
     Your Github repo should contain an example.env file.
-    
+
     Go ahead and create a .env file modeled after the example.env file:
 
     ```txt .env
@@ -83,7 +79,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise ValueError("Please set OPEN_API_KEY in .env file")
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def translate(text):
     """Translate text between Korean and English."""
@@ -129,7 +128,6 @@ if __name__ == "__main__":
       </Tab>
     </Tabs>
   </Step>
-
   <Step title="Run the translator">
     ```bash
     python app.py
@@ -141,19 +139,16 @@ if __name__ == "__main__":
 
 This basic implementation works but has some drawbacks:
 
-<CardGroup cols={2}>
+<CardGroup cols="2">
   <Card title="Fixed Model" icon="lock">
     Always uses GPT-4o-Mini, even for simple translations
   </Card>
-
   <Card title="Cost Inefficient" icon="money-bill">
     No way to optimize for cost vs quality
   </Card>
-
   <Card title="No Quality Metrics" icon="chart-line">
     Can't track or improve translation quality
   </Card>
-
   <Card title="No Feedback Loop" icon="rotate">
     Doesn't learn from past translations
   </Card>
@@ -161,13 +156,10 @@ This basic implementation works but has some drawbacks:
 
 In the following sections, we'll modify this application to use Martian's router system, which will help us:
 
-* Route requests to appropriate models based on needs
-
-* Optimize for cost and quality
-
-* Collect and use quality feedback
-
-* Monitor and improve translation performance
+- Route requests to appropriate models based on needs
+- Optimize for cost and quality
+- Collect and use quality feedback
+- Monitor and improve translation performance
 
 <Note>
   Remember to never commit your .env file to version control. Add it to your .gitignore file to prevent accidental exposure of your API key.
